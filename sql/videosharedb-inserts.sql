@@ -1,9 +1,9 @@
 source videosharedb-schema.sql;
 
 
-insert into users (username, contraseña, name,email)values('moha', MD5('moha'), 'Mohito', 'Moha@acme.com');
-insert into users (username, contraseña, name,email)values('carles', MD5('carles'), 'Carlitos', 'carles@acme.com');
-insert into users (username, contraseña, name,email)values('natalia', MD5('natalia'), 'Naty', 'natalia@acme.com');
+insert into users (username, userpass, name,email)values('moha', MD5('moha'), 'Mohito', 'Moha@acme.com');
+insert into users (username, userpass, name,email)values('carles', MD5('carles'), 'Carlitos', 'carles@acme.com');
+insert into users (username, userpass, name,email)values('natalia', MD5('natalia'), 'Naty', 'natalia@acme.com');
 
 
 insert into videos ( nombre_video, username , fecha) values ('El ataque de los pedos', 'natalia' , '2014-07-15');

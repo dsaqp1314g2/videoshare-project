@@ -201,7 +201,7 @@ public class VideoshareResource {
 				String sql = buildCreateUser();
 				stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 				stmt.setString(1,usuario.getUsername());
-				stmt.setString(2, md5(usuario.getUserpass()));
+				stmt.setString(2, usuario.getUserpass());
 				stmt.setString(3, usuario.getName());
 				stmt.setString(4, usuario.getEmail());
 				stmt.executeUpdate();
@@ -228,7 +228,7 @@ public class VideoshareResource {
 		}
 		
 		private String buildCreateUser(){
-			return "insert into users (username, contrasena, name,email) values (?,?,   ? ,?)";
+			return "insert into users (username, contrasena, name,email) values (?, MD5(?),   ? ,?)";
 		}
 	// (6)PUT de un video. Sólo lo puede modificar el usuario que ha subido el
 	// video
@@ -574,14 +574,14 @@ public class VideoshareResource {
 			stmt = conn.prepareStatement(sqlc);
 			stmt.setString(1, videoid);
 			rs = stmt.executeQuery();
-			if (rs.next()) {
+			while (rs.next()) {
 				Categoria cat = new Categoria();
 				cat.setTagid(rs.getString("tagid"));
 				cat.setCategoria(rs.getString("categoria"));
 
 				video.addCategoria(cat);
-			} else {
-				throw new NotFoundException();
+//			} else {
+//				throw new NotFoundException();
 			}
 
 			String sqlp = "select*from puntuaciones where videoid=?";

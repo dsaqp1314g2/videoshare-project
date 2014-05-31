@@ -14,11 +14,19 @@ public class Videos {
 	private String nombre_video;
 	private String username;
 	private Date fecha;
+	String url;
     
     
     //Para añadir a Reviews, Tags, Puntuaciones...
     
-    private List<Review> reviews = new ArrayList<Review>();
+    public String getUrl() {
+		return url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
+	private List<Review> reviews = new ArrayList<Review>();
     private List<Categoria> categorias = new ArrayList<Categoria>();
     private List<Puntuaciones> puntuaciones = new ArrayList<Puntuaciones>();
     
