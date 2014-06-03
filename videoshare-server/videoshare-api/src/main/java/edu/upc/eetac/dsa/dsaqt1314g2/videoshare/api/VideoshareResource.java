@@ -1,4 +1,5 @@
 package edu.upc.eetac.dsa.dsaqt1314g2.videoshare.api;
+
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.sql.Connection;
@@ -229,7 +230,9 @@ public class VideoshareResource {
 				throw new ServerErrorException(e.getMessage(),
 						Response.Status.INTERNAL_SERVER_ERROR);
 			}
+
 		}
+
 		return usuario;
 	}
 
@@ -587,8 +590,10 @@ public class VideoshareResource {
 				cat.setCategoria(rs.getString("categoria"));
 
 				video.addCategoria(cat);
+
 				// } else {
 				// throw new NotFoundException();
+
 			}
 
 			String sqlp = "select*from puntuaciones where videoid=?";
@@ -713,7 +718,8 @@ public class VideoshareResource {
 	@GET
 	@Path("/searchc")
 	@Produces(MediaType.VIDEOSHARE_API_VIDEOS_COLLECTION)
-	public VideosCollection getVideoByCategoria( @QueryParam ("categoria") String categoria) {
+	public VideosCollection getVideoByCategoria(
+			@QueryParam("categoria") String categoria) {
 		System.out.println("Entramos en el método");
 		VideosCollection videos = new VideosCollection();
 

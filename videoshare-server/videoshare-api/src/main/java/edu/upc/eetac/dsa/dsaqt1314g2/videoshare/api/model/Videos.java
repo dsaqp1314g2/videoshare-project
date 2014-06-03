@@ -41,6 +41,7 @@ public class Videos {
 	// aÃ±adimos mÃ©todos para aÃ±adir y 'coger'
 	// Reviews
 	public List<Review> getReviews() {
+
 		return reviews;
 	}
 
