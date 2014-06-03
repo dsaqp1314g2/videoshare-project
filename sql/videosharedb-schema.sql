@@ -4,7 +4,7 @@ create database videosharedb;
 use videosharedb;
 
 create table users (
-    	username	varchar(20) not null primary key,
+    username	varchar(20) not null primary key,
 	contraseña	varchar(20) not null,
 	name		varchar(50) not null,
 	email		varchar(50) not null

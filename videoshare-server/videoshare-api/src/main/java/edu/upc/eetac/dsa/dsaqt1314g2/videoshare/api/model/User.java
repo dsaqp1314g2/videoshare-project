@@ -2,7 +2,7 @@ package edu.upc.eetac.dsa.dsaqt1314g2.videoshare.api.model;
 
 public class User {
 	private String username;
-	private String contraseña;
+	private String userpass;
 	private String name;
 	private String email;
 	
@@ -13,10 +13,10 @@ public class User {
 		this.username = username;
 	}
 	public String getUserpass() {
-		return contraseña;
+		return userpass;
 	}
-	public void setUserpass(String userpass) {
-		this.contraseña = userpass;
+	public void setUserpass(String pass) {
+		this.userpass = pass;
 	}
 	public String getName() {
 		return name;
