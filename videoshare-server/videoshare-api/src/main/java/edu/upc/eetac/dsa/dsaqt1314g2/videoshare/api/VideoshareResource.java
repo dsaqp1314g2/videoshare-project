@@ -230,6 +230,8 @@ public class VideoshareResource {
 				throw new ServerErrorException(e.getMessage(),
 						Response.Status.INTERNAL_SERVER_ERROR);
 			}
+
+
 		}
 		return usuario;
 	}
