@@ -14,12 +14,21 @@ public class Videos {
 	private String nombre_video;
 	private String username;
 	private Date fecha;
-	String url;
+	private String url;
+	private String filename;
     
     
     //Para añadir a Reviews, Tags, Puntuaciones...
     
-    public String getUrl() {
+    public String getFilename() {
+		return filename;
+	}
+
+	public void setFilename(String filename) {
+		this.filename = filename;
+	}
+
+	public String getUrl() {
 		return url;
 	}
 

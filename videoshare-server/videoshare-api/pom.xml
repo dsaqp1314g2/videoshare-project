@@ -42,11 +42,20 @@
     	<artifactId>jersey-media-moxy</artifactId>
     	<version>2.6</version>
     </dependency>
+    
     <dependency>
     	<groupId>org.glassfish.jersey.ext</groupId>
     	<artifactId>jersey-declarative-linking</artifactId>
     	<version>2.6</version>
     </dependency>
+    
+
+
+		<dependency>
+			<groupId>org.glassfish.jersey.media</groupId>
+			<artifactId>jersey-media-multipart</artifactId>
+		</dependency>
+		
     <dependency>
     	<groupId>com.thetransactioncompany</groupId>
     	<artifactId>cors-filter</artifactId>

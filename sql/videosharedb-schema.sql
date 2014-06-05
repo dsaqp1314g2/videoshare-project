@@ -5,7 +5,7 @@ use videosharedb;
 
 create table users (
     	username	varchar(20) not null primary key,
-	userpass	varchar(20) not null,
+	userpass	varchar(100) not null,
 	name		varchar(50) not null,
 	email		varchar(50) not null
 
@@ -16,7 +16,6 @@ create table videos(
 	nombre_video 	varchar(50),
 	username 	varchar(50) not null,
 	fecha		date,
-	url varchar(50),
 	
 foreign key(username) references users (username) on delete cascade
 
