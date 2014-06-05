@@ -38,10 +38,12 @@ public class Videos {
 	private List<Review> reviews = new ArrayList<Review>();
     private List<Categoria> categorias = new ArrayList<Categoria>();
     private List<Puntuaciones> puntuaciones = new ArrayList<Puntuaciones>();
-    
-    //añadimos métodos para añadir y 'coger'
-    //Reviews
-    public List<Review> getReviews() {
+	
+
+	// aÃ±adimos mÃ©todos para aÃ±adir y 'coger'
+	// Reviews
+	public List<Review> getReviews() {
+
 		return reviews;
 	}
     

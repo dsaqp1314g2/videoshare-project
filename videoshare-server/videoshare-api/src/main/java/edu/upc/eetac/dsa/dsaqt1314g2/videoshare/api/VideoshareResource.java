@@ -1,6 +1,7 @@
 package edu.upc.eetac.dsa.dsaqt1314g2.videoshare.api;
 
 
+import java.io.InputStream;
 import java.security.MessageDigest;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
