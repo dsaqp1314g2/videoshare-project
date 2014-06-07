@@ -1,21 +1,27 @@
 package edu.upc.eetac.dsa.dsaqt1314g2.videoshare.api;
 
-
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
+import java.util.Scanner;
 
 import javax.sql.DataSource;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.GET;
-
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -29,6 +35,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import edu.upc.eetac.dsa.dsaqt1314g2.videoshare.api.model.Categoria;
 import edu.upc.eetac.dsa.dsaqt1314g2.videoshare.api.model.Puntuaciones;
@@ -718,7 +726,8 @@ public class VideoshareResource {
 	@GET
 	@Path("/searchc")
 	@Produces(MediaType.VIDEOSHARE_API_VIDEOS_COLLECTION)
-	public VideosCollection getVideoByCategoria( @QueryParam ("categoria") String categoria) {
+	public VideosCollection getVideoByCategoria(
+			@QueryParam("categoria") String categoria) {
 		System.out.println("Entramos en el método");
 		VideosCollection videos = new VideosCollection();
 
@@ -770,97 +779,123 @@ public class VideoshareResource {
 		System.out.println("Query:" + sql);
 		return sql;
 	}
-	
-	
-	
 
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	@Path ("/upload")
+	@POST
+	@Consumes(MediaType.VIDEOSHARE_API_FORM_DATA)
+	@Produces(MediaType.VIDEOSHARE_API_VIDEOS)
+	public Videos uploadVideo(@FormDataParam("title") String title,
+			@FormDataParam("video") InputStream video,
+			@FormDataParam("video") FormDataContentDisposition fileDisposition) {
+		
+		String donde = fileDisposition.getFileName();
+		System.out.println(donde);
+		Videos video1;
+		String filename;
+		int videoid;
+		Connection conn = null;
+		try {
+			conn = ds.getConnection();
+		} catch (SQLException e) {
+			throw new ServerErrorException("Could not connect to the database",
+					Response.Status.SERVICE_UNAVAILABLE);
+		}
+		PreparedStatement stmt = null;
+		try {
+			stmt = conn
+					.prepareStatement("insert into videos (nombre_video, username, fecha) values (?,?, now())");
+			stmt.setString(1, title);
+			stmt.setString(2, "pepito");
+			stmt.executeUpdate();
 
-//	@POST
-//	@Consumes(MediaType.VIDEOSHARE_API_VIDEOS_COLLECTION)
-//	@Produces(MediaType.VIDEOSHARE_API_VIDEOS_COLLECTION)
-//	public Videos uploadVideo( @FormDataParam("title") String title,
-//			@FormDataParam("video") InputStream video,
-//			@FormDataParam("video") FormDataContentDisposition fileDisposition, Videos video1) {
-//		
-//		
-//		int videoid;
-//		Connection conn = null;
-//		try {
-//			conn = ds.getConnection();
-//		} catch (SQLException e) {
-//			throw new ServerErrorException("Could not connect to the database",
-//					Response.Status.SERVICE_UNAVAILABLE);
-//		}
-//		PreparedStatement stmt = null;
-//		try {
-//			stmt = conn.prepareStatement("insert into videos (nombre_video, username, fecha) values (?,?, now())");
-//			stmt.setString(1, video1.getNombre_video());
-//			stmt.setString(2, video1.getUsername());
-//			stmt.executeUpdate();
-//			
-//			
-//			ResultSet rs = stmt.getGeneratedKeys();
-//
-//			videoid = rs.getInt(1);
-//
-//			video1 = getVideoFromDatabase(Integer.toString(videoid));
-//				// se utiliza el método sting para pasarle el stingid
-//				// para crear el sting -> JSON
-//		} catch (SQLException e) {
-//			throw new ServerErrorException(e.getMessage(),
-//					Response.Status.INTERNAL_SERVER_ERROR);
-//		} finally {
-//			try {
-//				if (stmt != null)
-//					stmt.close();
-//				conn.close();
-//			} catch (SQLException e) {
-//			}
-//			
-//			writeVideo(video, video1.getVideoid());
-//		}
-////		ImageData imageData = new ImageData();
-////		imageData.setFilename(uuid.toString() + ".png");
-////		imageData.setTitle(title);
-////		
-////		imageData.setImageURL(app.getProperties().get("imgBaseURL")
-////				+ imageData.getFilename());
-////
-//		return video1;
-//		
-//	}
-////	
-//	private void writeVideo(InputStream video, String videoid) {
-//		String filename = videoid + ".webm";
-//		DataInputStream dis = new DataInputStream(video);
-//		String file = app.getProperties().get("uploadFolder") + filename;
-//		DataOutputStream out = new DataOutputStream( file );
-//		try {
-//			BufferedReader inputStream = null;
-//	        PrintWriter outputStream = new PrintWriter(new FileWriter(app.getProperties().get("uploadFolder") + filename));;
-//	        Scanner s = null;
-//	        inputStream = new BufferedReader(new FileReader());
-//	        s = new Scanner (inputStream);
-//
-//            String v = ""; 
-//            
-//            while (s.hasNext()) {
-//                v = v+s.next();
-//            }
-//            outputStream.println(v);
-//            
-////			file.read(
-////					file,
-////					"webm",
-////					new File(app.getProperties().get("uploadFolder") + filename));
-//		} catch (IOException e) {
-//			throw new InternalServerErrorException(
-//					"Something has been wrong with the file.");
-//		}
-//
-//		
-//	}
-//	
+			ResultSet rs = stmt.getGeneratedKeys();
+
+			videoid = rs.getInt(1);
+			filename = Integer.toString(videoid) + ".webm";
+			video1 = getVideoFromDatabase(Integer.toString(videoid));
+			// se utiliza el método sting para pasarle el stingid
+			// para crear el sting -> JSON
+		} catch (SQLException e) {
+			throw new ServerErrorException(e.getMessage(),
+					Response.Status.INTERNAL_SERVER_ERROR);
+		} finally {
+			try {
+				if (stmt != null)
+					stmt.close();
+				conn.close();
+			} catch (SQLException e) {
+			}
+
+		}
+		String file = app.getProperties().get("uploadFolder") + filename;
+		FileCopy(video, file);
+		// ImageData imageData = new ImageData();
+		// imageData.setFilename(uuid.toString() + ".png");
+		// imageData.setTitle(title);
+		//
+		// imageData.setImageURL(app.getProperties().get("imgBaseURL")
+		// + imageData.getFilename());
+		//
+		return video1;
+
+	}
+
+	// private void writeVideo(InputStream video, String videoid) {
+	// String filename = videoid + ".webm";
+	// try {
+	// DataInputStream dis = new DataInputStream(video);
+	// String file = app.getProperties().get("uploadFolder") + filename;
+	// FileOutputStream out = new FileOutputStream(file);
+	// DataOutputStream output = new DataOutputStream(out);
+	// String entrada = "";
+	// while ((entrada = dis.readLine()) != null) {
+	// entrada = entrada + dis.readChar();
+	// }
+	// output.writeChars(entrada);
+	// // DataOutputStream out = new DataOutputStream( file );
+	// //
+	// // BufferedReader inputStream = null;
+	// // PrintWriter outputStream = new PrintWriter(new
+	// // FileWriter(app.getProperties().get("uploadFolder") + filename));;
+	// // Scanner s = null;
+	// // inputStream = new BufferedReader(new FileReader());
+	// // s = new Scanner (inputStream);
+	//
+	// // while (s.hasNext()) {
+	// // v = v+s.next();
+	// // }
+	//
+	// // file.read(
+	// // file,
+	// // "webm",
+	// // new File(app.getProperties().get("uploadFolder") + filename));
+	// } catch (IOException e) {
+	// throw new InternalServerErrorException(
+	// "Something has been wrong with the file.");
+	// }
+	//
+	// }
+
+	public static void FileCopy(InputStream in, String destinationFile) {
+
+		System.out.println("Hacia: " + destinationFile);
+
+		try {
+
+			File outFile = new File(destinationFile);
+
+			FileOutputStream out = new FileOutputStream(outFile);
+
+			int c;
+			while ((c = in.read()) != -1)
+				out.write(c);
+
+			in.close();
+			out.close();
+		} catch (IOException e) {
+			System.err.println("Hubo un error de entrada/salida!!!");
+		}
+	}
 }
