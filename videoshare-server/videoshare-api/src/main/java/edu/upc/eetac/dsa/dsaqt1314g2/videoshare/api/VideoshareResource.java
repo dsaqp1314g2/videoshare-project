@@ -1,27 +1,21 @@
 package edu.upc.eetac.dsa.dsaqt1314g2.videoshare.api;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Scanner;
 
 import javax.sql.DataSource;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.GET;
-import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -782,14 +776,15 @@ public class VideoshareResource {
 
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	@Path ("/upload")
+/*
 	@POST
-	@Consumes(MediaType.VIDEOSHARE_API_FORM_DATA)
+	@Path("/upload")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.VIDEOSHARE_API_VIDEOS)
 	public Videos uploadVideo(@FormDataParam("title") String title,
 			@FormDataParam("video") InputStream video,
 			@FormDataParam("video") FormDataContentDisposition fileDisposition) {
-		
+
 		String donde = fileDisposition.getFileName();
 		System.out.println(donde);
 		Videos video1;
@@ -854,23 +849,23 @@ public class VideoshareResource {
 	// entrada = entrada + dis.readChar();
 	// }
 	// output.writeChars(entrada);
-	// // DataOutputStream out = new DataOutputStream( file );
-	// //
-	// // BufferedReader inputStream = null;
-	// // PrintWriter outputStream = new PrintWriter(new
-	// // FileWriter(app.getProperties().get("uploadFolder") + filename));;
-	// // Scanner s = null;
-	// // inputStream = new BufferedReader(new FileReader());
-	// // s = new Scanner (inputStream);
+	// DataOutputStream out = new DataOutputStream( file );
 	//
-	// // while (s.hasNext()) {
-	// // v = v+s.next();
-	// // }
-	//
-	// // file.read(
-	// // file,
-	// // "webm",
-	// // new File(app.getProperties().get("uploadFolder") + filename));
+	// BufferedReader inputStream = null;
+	// PrintWriter outputStream = new PrintWriter(new
+	// FileWriter(app.getProperties().get("uploadFolder") + filename));;
+	// Scanner s = null;
+	// inputStream = new BufferedReader(new FileReader());
+	// s = new Scanner (inputStream);
+
+	// while (s.hasNext()) {
+	// v = v+s.next();
+	// }
+
+	// file.read(
+	// file,
+	// "webm",
+	// new File(app.getProperties().get("uploadFolder") + filename));
 	// } catch (IOException e) {
 	// throw new InternalServerErrorException(
 	// "Something has been wrong with the file.");
@@ -878,24 +873,27 @@ public class VideoshareResource {
 	//
 	// }
 
-	public static void FileCopy(InputStream in, String destinationFile) {
-
+	public void FileCopy(InputStream in, String destinationFile) {
+		// System.out.println("Desde: " + sourceFile);
 		System.out.println("Hacia: " + destinationFile);
 
 		try {
-
+			// File inFile = new File(sourceFile);
 			File outFile = new File(destinationFile);
 
+			// InputStream in = new FileInputStream(inFile);
 			FileOutputStream out = new FileOutputStream(outFile);
 
 			int c;
-			while ((c = in.read()) != -1)
+			while ((c = in.read()) != -1) {
 				out.write(c);
+			}
 
 			in.close();
 			out.close();
 		} catch (IOException e) {
 			System.err.println("Hubo un error de entrada/salida!!!");
 		}
-	}
+	}*/
+
 }
