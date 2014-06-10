@@ -776,12 +776,12 @@ public class VideoshareResource {
 
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-/*
+
 	@POST
 	@Path("/upload")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	@Produces(MediaType.VIDEOSHARE_API_VIDEOS)
-	public Videos uploadVideo(@FormDataParam("title") String title,
+	// @Produces(MediaType.VIDEOSHARE_API_VIDEOS)
+	public void uploadVideo(@FormDataParam("title") String title,
 			@FormDataParam("video") InputStream video,
 			@FormDataParam("video") FormDataContentDisposition fileDisposition) {
 
@@ -833,7 +833,7 @@ public class VideoshareResource {
 		// imageData.setImageURL(app.getProperties().get("imgBaseURL")
 		// + imageData.getFilename());
 		//
-		return video1;
+		// return video1;
 
 	}
 
@@ -894,6 +894,6 @@ public class VideoshareResource {
 		} catch (IOException e) {
 			System.err.println("Hubo un error de entrada/salida!!!");
 		}
-	}*/
+	}
 
 }

@@ -13,5 +13,5 @@ public interface MediaType {
 	public final static String VIDEOSHARE_API_CATEGORIA = "application/vnd.videoshare.api.categoria+json";
 	public final static String VIDEOSHARE_API_CATEGORIA_COLLECTION = "application/vnd.videoshare.api.categoria.collection+json";
 	//public final static String MULTIPART_FORM_DATA = "application/multipart.form.data+json";
-	public static final String MULTIPART_FORM_DATA = "application/multipart.form.data+json";
+	public static final String MULTIPART_FORM_DATA = "application/multipart.form.data";
 }
