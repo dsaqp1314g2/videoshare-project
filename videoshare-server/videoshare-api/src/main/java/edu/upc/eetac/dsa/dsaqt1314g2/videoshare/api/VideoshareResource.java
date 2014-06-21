@@ -26,6 +26,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 
@@ -53,7 +54,7 @@ public class VideoshareResource {
 	// para obtener la coleción de videos GET (1)
 
 	@GET
-	@Produces(MediaType.VIDEOSHARE_API_VIDEOS_COLLECTION)
+	@Produces(Mediatype.VIDEOSHARE_API_VIDEOS_COLLECTION)
 	public VideosCollection getVideos() {
 		VideosCollection videos = new VideosCollection();
 
@@ -162,7 +163,7 @@ public class VideoshareResource {
 	// (2) Obtener un video a partir de su identificador videoid
 	@GET
 	@Path("/{videoid}")
-	@Produces(MediaType.VIDEOSHARE_API_VIDEOS)
+	@Produces(Mediatype.VIDEOSHARE_API_VIDEOS)
 	public Videos getVideoid(@PathParam("videoid") String videoid) {
 
 		// llamaremos a la método que nos permite obtener un video a partir de
@@ -195,8 +196,8 @@ public class VideoshareResource {
 
 	// crear un nuevo usuario.
 	@POST
-	@Consumes(MediaType.VIDEOSHARE_API_USERS)
-	@Produces(MediaType.VIDEOSHARE_API_USERS)
+	@Consumes(Mediatype.VIDEOSHARE_API_USERS)
+	@Produces(Mediatype.VIDEOSHARE_API_USERS)
 	public User creatUser(User usuario) throws Exception {
 
 		Connection conn = null;
@@ -245,8 +246,8 @@ public class VideoshareResource {
 	// video
 	@PUT
 	@Path("/{videoid}")
-	@Consumes(MediaType.VIDEOSHARE_API_VIDEOS)
-	@Produces(MediaType.VIDEOSHARE_API_VIDEOS)
+	@Consumes(Mediatype.VIDEOSHARE_API_VIDEOS)
+	@Produces(Mediatype.VIDEOSHARE_API_VIDEOS)
 	public Videos updateBook(@PathParam("videoid") String videoid, Videos video) {
 
 		// ¡¡¡¡¡¡¡ falta añadir que compruebe que el usuario que edita sea el
@@ -304,67 +305,50 @@ public class VideoshareResource {
 	// cuando se elimine el video se eliminará todo lo que esté asociado a él,
 	// es decir, se eliminarán las categorías, los comentarios, las
 	// puntuaciones.
-	@POST
-	@Consumes(MediaType.VIDEOSHARE_API_VIDEOS)
-	@Produces(MediaType.VIDEOSHARE_API_VIDEOS)
-	public VideosCollection creatvideo(Videos video) {
-		// Comprobamos que el usuario que vaya a crear la ficha de libro sea
-		// ADMIN
-		VideosCollection videos = new VideosCollection();
-
-		/*
-		 * if (!security.isUserInRole("registered")) { throw new
-		 * ForbiddenException("You have not get registered"); }
-		 */
-
-		Connection conn = null;
-		try {
-			conn = ds.getConnection();
-		} catch (SQLException e) {
-			throw new ServerErrorException("Could not connect to the database",
-					Response.Status.SERVICE_UNAVAILABLE);
-		}
-
-		PreparedStatement stmt = null;
-		try {
-			String sql = buildQueryInsertVideo();
-			stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-
-			stmt.setString(1, video.getNombre_video());
-			stmt.setString(2, video.getUsername());
-			// stmt.setDate(3, video.getFecha());
-
-			stmt.executeUpdate();
-
-			// si ha ido bien la inserciÃ³n
-			ResultSet rs = stmt.getGeneratedKeys();
-			if (rs.next()) {
-				videos = getVideos();
-			} else {
-				// Something has failed...
-				// throw new NotFoundException();
-				System.out.println("no encuentra el video");
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				if (stmt != null)
-					stmt.close();
-				conn.close();
-			} catch (SQLException e) {
-				throw new ServerErrorException(e.getMessage(),
-						Response.Status.INTERNAL_SERVER_ERROR);
-			}
-		}
-
-		return videos;
-	}
-
-	private String buildQueryInsertVideo() {
-		return "insert into videos (videoid, nombre_video, username,  fecha) value (null, ?, ?, now())";
-	}
-
+	/*
+	 * @POST
+	 * 
+	 * @Consumes(Mediatype.VIDEOSHARE_API_VIDEOS)
+	 * 
+	 * @Produces(Mediatype.VIDEOSHARE_API_VIDEOS) public VideosCollection
+	 * creatvideo(Videos video) { // Comprobamos que el usuario que vaya a crear
+	 * la ficha de libro sea // ADMIN VideosCollection videos = new
+	 * VideosCollection();
+	 * 
+	 * 
+	 * if (!security.isUserInRole("registered")) { throw new
+	 * ForbiddenException("You have not get registered"); }
+	 * 
+	 * 
+	 * Connection conn = null; try { conn = ds.getConnection(); } catch
+	 * (SQLException e) { throw new
+	 * ServerErrorException("Could not connect to the database",
+	 * Response.Status.SERVICE_UNAVAILABLE); }
+	 * 
+	 * PreparedStatement stmt = null; try { String sql =
+	 * buildQueryInsertVideo(); stmt = conn.prepareStatement(sql,
+	 * Statement.RETURN_GENERATED_KEYS);
+	 * 
+	 * stmt.setString(1, video.getNombre_video()); stmt.setString(2,
+	 * video.getUsername()); // stmt.setDate(3, video.getFecha());
+	 * 
+	 * stmt.executeUpdate();
+	 * 
+	 * // si ha ido bien la inserciÃ³n ResultSet rs = stmt.getGeneratedKeys();
+	 * if (rs.next()) { videos = getVideos(); } else { // Something has
+	 * failed... // throw new NotFoundException();
+	 * System.out.println("no encuentra el video"); } } catch (SQLException e) {
+	 * e.printStackTrace(); } finally { try { if (stmt != null) stmt.close();
+	 * conn.close(); } catch (SQLException e) { throw new
+	 * ServerErrorException(e.getMessage(),
+	 * Response.Status.INTERNAL_SERVER_ERROR); } }
+	 * 
+	 * return videos; }
+	 * 
+	 * private String buildQueryInsertVideo() { return
+	 * "insert into videos (videoid, nombre_video, username,  fecha) value (null, ?, ?, now())"
+	 * ; }
+	 */
 	@DELETE
 	@Path("/{videoid}")
 	public void deleteVideo(@PathParam("videoid") String videoid) {
@@ -416,8 +400,8 @@ public class VideoshareResource {
 	// (8) Hacer publicación de un comentario de un video
 	@POST
 	@Path("/{videoid}/reviews")
-	@Consumes(MediaType.VIDEOSHARE_API_REVIEWS)
-	@Produces(MediaType.VIDEOSHARE_API_REVIEWS)
+	@Consumes(Mediatype.VIDEOSHARE_API_REVIEWS)
+	@Produces(Mediatype.VIDEOSHARE_API_REVIEWS)
 	public Videos creatReview(@PathParam("videoid") String videoid,
 			Review review) {
 		// Comprobamos que el usuario que vaya a crear la ficha de libro sea
@@ -716,78 +700,16 @@ public class VideoshareResource {
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-	// Listar por categoria:
-	@GET
-	@Path("/searchc")
-	@Produces(MediaType.VIDEOSHARE_API_VIDEOS_COLLECTION)
-	public VideosCollection getVideoByCategoria(
-			@QueryParam("categoria") String categoria) {
-		System.out.println("Entramos en el método");
-		VideosCollection videos = new VideosCollection();
-
-		Connection conn = null;
-		try {
-			conn = ds.getConnection();
-		} catch (SQLException e) {
-			throw new ServerErrorException(
-					"Could not connect to the databaseeeeeeeeeeeeee",
-					Response.Status.SERVICE_UNAVAILABLE);
-		}
-		PreparedStatement stmt = null;
-		try {
-			String sql = buildQueryGetVideoByCategoria();
-			stmt = conn.prepareStatement(sql);
-			stmt.setString(1, categoria);
-			System.out.println("Query:" + stmt);
-			ResultSet rs = stmt.executeQuery();
-
-			// obtenemos los videoid de los videos que tienen asignada esa
-			// categoria
-			while (rs.next()) {
-				Videos video = new Videos();
-				video.setVideoid(rs.getString("videoid"));
-				Videos video2 = getVideoFromDatabase(video.getVideoid());
-				System.out.println(video2.getUsername());
-				videos.addVideos(video2);
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				// Haya ido bien o haya ido mal cierra las conexiones
-				if (stmt != null)
-					stmt.close();
-				conn.close();
-			} catch (SQLException e) {
-				throw new ServerErrorException(e.getMessage(),
-						Response.Status.INTERNAL_SERVER_ERROR);
-			}
-		}
-		return videos;
-	}
-
-	// método para buscar y obtener libro a partir de la categoria:
-
-	private String buildQueryGetVideoByCategoria() {
-		String sql = "select * from categorias where categoria = ?";
-		System.out.println("Query:" + sql);
-		return sql;
-	}
-
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 	@POST
 	@Path("/upload")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	// @Produces(MediaType.VIDEOSHARE_API_VIDEOS)
-	public void uploadVideo(@FormDataParam("title") String title,
+	public Videos uploadVideo(@FormDataParam("title") String title,
 			@FormDataParam("video") InputStream video,
 			@FormDataParam("video") FormDataContentDisposition fileDisposition) {
 
 		String donde = fileDisposition.getFileName();
 		System.out.println(donde);
-		Videos video1;
+		Videos video1 = null;
 		String filename;
 		int videoid;
 		Connection conn = null;
@@ -799,18 +721,30 @@ public class VideoshareResource {
 		}
 		PreparedStatement stmt = null;
 		try {
-			stmt = conn
-					.prepareStatement("insert into videos (nombre_video, username, fecha) values (?,?, now())");
+			String sql = "insert into videos (nombre_video, username, fecha) values (?,?, now())";
+			stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			stmt.setString(1, title);
-			stmt.setString(2, "pepito");
+			stmt.setString(2, "moha");
+			System.out.println("Query:" + stmt);
 			stmt.executeUpdate();
-
 			ResultSet rs = stmt.getGeneratedKeys();
+			if (rs.next()) {
+				videoid = rs.getInt(1);
+				System.out.println(videoid);
+				filename = Integer.toString(videoid) + ".webm";
+				String file = app.getProperties().get("uploadFolder") + filename;
+				FileCopy(video, file);
+				video1 = getVideoFromDatabase(Integer.toString(videoid));
+				
+			} else {
+				
+				// Something has failed...
+			}
+			
 
-			videoid = rs.getInt(1);
-			filename = Integer.toString(videoid) + ".webm";
-			video1 = getVideoFromDatabase(Integer.toString(videoid));
-			// se utiliza el método sting para pasarle el stingid
+			
+			
+			 //se utiliza el método sting para pasarle el stingid
 			// para crear el sting -> JSON
 		} catch (SQLException e) {
 			throw new ServerErrorException(e.getMessage(),
@@ -824,8 +758,7 @@ public class VideoshareResource {
 			}
 
 		}
-		String file = app.getProperties().get("uploadFolder") + filename;
-		FileCopy(video, file);
+		
 		// ImageData imageData = new ImageData();
 		// imageData.setFilename(uuid.toString() + ".png");
 		// imageData.setTitle(title);
@@ -833,7 +766,7 @@ public class VideoshareResource {
 		// imageData.setImageURL(app.getProperties().get("imgBaseURL")
 		// + imageData.getFilename());
 		//
-		// return video1;
+		 return video1;
 
 	}
 
@@ -895,5 +828,66 @@ public class VideoshareResource {
 			System.err.println("Hubo un error de entrada/salida!!!");
 		}
 	}
+
+	// Listar por categoria:
+	@GET
+	@Path("/searchc")
+	@Produces(Mediatype.VIDEOSHARE_API_VIDEOS_COLLECTION)
+	public VideosCollection getVideoByCategoria(
+			@QueryParam("categoria") String categoria) {
+		System.out.println("Entramos en el método");
+		VideosCollection videos = new VideosCollection();
+
+		Connection conn = null;
+		try {
+			conn = ds.getConnection();
+		} catch (SQLException e) {
+			throw new ServerErrorException(
+					"Could not connect to the databaseeeeeeeeeeeeee",
+					Response.Status.SERVICE_UNAVAILABLE);
+		}
+		PreparedStatement stmt = null;
+		try {
+			String sql = buildQueryGetVideoByCategoria();
+			stmt = conn.prepareStatement(sql);
+			stmt.setString(1, categoria);
+			System.out.println("Query:" + stmt);
+			ResultSet rs = stmt.executeQuery();
+
+			// obtenemos los videoid de los videos que tienen asignada esa
+			// categoria
+			while (rs.next()) {
+				Videos video = new Videos();
+				video.setVideoid(rs.getString("videoid"));
+				Videos video2 = getVideoFromDatabase(video.getVideoid());
+				System.out.println(video2.getUsername());
+				videos.addVideos(video2);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				// Haya ido bien o haya ido mal cierra las conexiones
+				if (stmt != null)
+					stmt.close();
+				conn.close();
+			} catch (SQLException e) {
+				throw new ServerErrorException(e.getMessage(),
+						Response.Status.INTERNAL_SERVER_ERROR);
+			}
+		}
+		return videos;
+	}
+
+	// método para buscar y obtener libro a partir de la categoria:
+
+	private String buildQueryGetVideoByCategoria() {
+		String sql = "select * from categorias where categoria = ?";
+		System.out.println("Query:" + sql);
+		return sql;
+	}
+
+	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 }

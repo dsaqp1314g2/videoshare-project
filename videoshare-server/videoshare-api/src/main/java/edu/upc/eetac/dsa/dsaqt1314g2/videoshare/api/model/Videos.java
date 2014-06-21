@@ -6,6 +6,19 @@ import java.util.List;
 
 import javax.ws.rs.core.Link;
 
+import org.glassfish.jersey.linking.Binding;
+import org.glassfish.jersey.linking.InjectLink;
+import org.glassfish.jersey.linking.InjectLink.Style;
+import org.glassfish.jersey.linking.InjectLinks;
+
+import edu.upc.eetac.dsa.dsaqt1314g2.videoshare.api.Mediatype;
+import edu.upc.eetac.dsa.dsaqt1314g2.videoshare.api.VideoshareResource;
+
+@InjectLinks({
+	@InjectLink(resource = VideoshareResource.class, style = Style.ABSOLUTE, rel = "videos", title = "Coleccion de videos", type = Mediatype.VIDEOSHARE_API_VIDEOS_COLLECTION),
+	@InjectLink(resource = VideoshareResource.class, style = Style.ABSOLUTE, rel = "self edit", title = "videos", type = Mediatype.VIDEOSHARE_API_VIDEOS, method = "getVideoid", bindings = @Binding(name = "videoid", value = "${instance.videoid}")) }) 
+
+
 public class Videos {
 
 

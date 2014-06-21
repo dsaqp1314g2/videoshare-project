@@ -16,7 +16,7 @@ public class WebApplicationExceptionsMapper implements
 		VideoshareError error  = new VideoshareError(
 				exception.getResponse().getStatus(), exception.getMessage());
 		return Response.status(error.getStatus()).entity(error)
-				.type(MediaType.VIDEOSHARE_API_ERROR).build();
+				.type(Mediatype.VIDEOSHARE_API_ERROR).build();
 	}
  
 }

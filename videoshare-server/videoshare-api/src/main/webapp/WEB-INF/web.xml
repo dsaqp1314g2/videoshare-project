@@ -14,13 +14,7 @@
 		<init-param>
 			<param-name>javax.ws.rs.Application</param-name>
 			<param-value>edu.upc.eetac.dsa.dsaqt1314g2.videoshare.api.VideoshareApplication</param-value>
-		</init-param>
-		
-		<init-param>
-            <param-name>javax.ws.rs.Application</param-name>
-            <param-value>com.aruld.jersey.multipart.MyApplication</param-value>
-        </init-param>
-        
+		</init-param>        
 
 		<load-on-startup>1</load-on-startup>
 	</servlet>
