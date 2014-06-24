@@ -1,16 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/LinearLayout1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical" 
+    android:background="#FFA500">
 
     <VideoView
         android:id="@+id/videoViewer"
-        android:layout_width="480dp"
-        android:layout_height="640dp"
+        android:layout_width="370dp"
+        android:layout_height="490dp"
         android:layout_centerInParent="true"
         android:gravity="center" >
     </VideoView>
+    <TextView
+     android:id="@+id/textView2"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:textColor="#111111"
+     android:textSize="16dp"
+      android:textStyle="italic"
+      android:typeface="sans"
+      
+      />
+ <ScrollView
+        android:id="@+id/scrollView1"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_alignParentLeft="true"
+        android:background="#111111"
+        android:layout_marginTop="38dp"
+         >
+ 
 
-</RelativeLayout>
+ <TextView
+     android:id="@+id/textView1"
+     android:layout_width="360dp"
+     android:layout_height="100dp"
+     android:layout_alignParentBottom="true"
+     android:layout_alignParentLeft="true"
+     android:layout_marginBottom="20dp"
+     android:text="TextView" 
+     android:textColor="#FFFFFF"
+     />
+</ScrollView>
+</LinearLayout>

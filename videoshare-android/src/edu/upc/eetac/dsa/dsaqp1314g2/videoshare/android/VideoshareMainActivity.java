@@ -1,19 +1,138 @@
 package edu.upc.eetac.dsa.dsaqp1314g2.videoshare.android;
 
-import android.app.Activity;
-import android.media.MediaPlayer;
-import android.net.Uri;
+
+import java.net.Authenticator;
+import java.net.PasswordAuthentication;
+import java.util.ArrayList;
+
+import android.app.ListActivity;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Button;
-import android.widget.MediaController;
-import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.VideoView;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ListView;
+import edu.upc.eetac.dsa.dsaqp1314g2.videoshare.android.api.Videos;
+import edu.upc.eetac.dsa.dsaqp1314g2.videoshare.android.api.VideosCollection;
+import edu.upc.eetac.dsa.dsaqp1314g2.videoshare.android.api.VideoshareAPI;
+import edu.upc.eetac.dsa.dsaqp1314g2.videoshare.android.api.VideoshareAndroidException;
 
-public class VideoshareMainActivity extends Activity {
+
+
+
+
+
+public class VideoshareMainActivity extends ListActivity {
+	
+	
+	private class FetchStingsTask extends AsyncTask<Void, Void, VideosCollection> {
+
+		private ProgressDialog pd;
+
+		@Override
+		protected VideosCollection doInBackground(Void... params) {
+			VideosCollection videos = null;
+			try {
+				videos = VideoshareAPI.getInstance(VideoshareMainActivity.this)
+						.getCollectionVideos();
+			} catch (VideoshareAndroidException e) {
+				e.printStackTrace();
+			}
+			return videos;
+		}
+
+		@Override
+		protected void onPostExecute(VideosCollection result) {
+			addVideo(result);
+			if (pd != null) {
+				pd.dismiss();
+			}
+		}
+
+		@Override
+		protected void onPreExecute() {
+			pd = new ProgressDialog(VideoshareMainActivity.this);
+			pd.setTitle("Buscando el servidor...");
+			pd.setCancelable(false);
+			pd.setIndeterminate(true);
+			pd.show();
+		}
+
+	}
+		private void addVideo(VideosCollection videos){
+			videoList.addAll(videos.getVideos());
+			adapter.notifyDataSetChanged();
+		}
+		private ArrayList<Videos> videoList;
+		private VideosAdapter adapter;
+	
+		private final static String TAG = VideoshareMainActivity.class.toString();
+		
+		
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			setContentView(R.layout.videoshare_layout);
+		/*	SharedPreferences prefs = getSharedPreferences("videoshare-profile",
+					Context.MODE_PRIVATE);
+		/*	final String username = prefs.getString("username", null);
+			final String password = prefs.getString("password", null);
+		 
+			Authenticator.setDefault(new Authenticator() {
+				protected PasswordAuthentication getPasswordAuthentication() {
+					return new PasswordAuthentication(username, password
+							.toCharArray());
+				}
+			});
+			Log.d(TAG, "authenticated with " + username + ":" + password);
+		 */
+			videoList = new ArrayList<Videos>();
+			adapter = new VideosAdapter(this, videoList);
+			setListAdapter(adapter);
+			
+			(new FetchStingsTask()).execute();
+		}
+		
+		protected void onListItemClick(ListView l, View v, int position, long videoid) {
+			Videos video = videoList.get(position);
+			Log.d(TAG, video.getLinks().get("self").getTarget());
+
+			Intent intent = new Intent(this, Videosreproductor.class);
+			intent.putExtra("url", video.getLinks().get("self").getTarget());
+			
+			startActivity(intent);
+		}
+		
+		public boolean onCreateOptionsMenu(Menu menu) {
+			getMenuInflater().inflate(R.menu.videoshare_actions, menu);
+			return true;
+		}
+
+	/*	@Override
+		public boolean onOptionsItemSelected(MenuItem item) {
+			switch (item.getItemId()) {
+			case R.id.miWrite:
+				Intent intent = new Intent(this, WriteStingActivity.class);
+				startActivity(intent);
+				return true;
+
+			default:
+				return super.onOptionsItemSelected(item);
+			}
+
+		} */
+
+		
+		
+/*	
+_____________________________________________________________________________	
 	VideoView videoView = null;
-	private static final String Movie = "http://10.89.68.163/video/1.webm";
+	private static final String Movie = "http://193.145.53.249/video/1.webm";
 	
 	 MediaPlayer mediaPlayer;
 	 Button buttonPlayPause, buttonQuit;
@@ -31,8 +150,14 @@ public class VideoshareMainActivity extends Activity {
 			vid.setVideoURI(video);
 			vid.requestFocus();
 			vid.start();
+			}
+			__________________________________________________ */
+	
+	
+	
+	
 	 
-}}
+
 	/* 
 	 private int stateMediaPlayer;
 	 private final int stateMP_Error = 0;
@@ -178,5 +303,5 @@ public class VideoshareMainActivity extends Activity {
 		videoView.start();
 	*/
 	// Clean up and release resources
-
+	}
 	
