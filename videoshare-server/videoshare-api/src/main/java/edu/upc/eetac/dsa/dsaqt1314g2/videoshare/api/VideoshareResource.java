@@ -196,10 +196,12 @@ public class VideoshareResource {
 
 	// crear un nuevo usuario.
 	@POST
+	@Path("/users")
 	@Consumes(Mediatype.VIDEOSHARE_API_USERS)
 	@Produces(Mediatype.VIDEOSHARE_API_USERS)
 	public User creatUser(User usuario) throws Exception {
 
+		System.out.println("Entra en método crear usuario");
 		Connection conn = null;
 		try {
 			conn = ds.getConnection();
@@ -239,7 +241,7 @@ public class VideoshareResource {
 	}
 
 	private String buildCreateUser() {
-		return "insert into users (username, contrasena, name,email) values (?, MD5(?),   ? ,?)";
+		return "insert into users (username, userpass, name,email) values (?, MD5(?),   ? ,?)";
 	}
 
 	// (6)PUT de un video. Sólo lo puede modificar el usuario que ha subido el
@@ -690,6 +692,32 @@ public class VideoshareResource {
 			throw new ForbiddenException(
 					"You are not allowed to modify/delete this review.");
 	}
+	
+	private void validateUserPunt(String videoid, String usuario) throws SQLException {
+		// si el usuario que consulta la reseña no es el que la ha creado,
+		// ForbiddenException
+		Connection conn = null;
+		try {
+			conn = ds.getConnection();
+		} catch (SQLException e) {
+			throw new ServerErrorException("Could not connect to the database",
+					Response.Status.SERVICE_UNAVAILABLE);
+		}
+		PreparedStatement stmt = null;
+		String sql = "select * puntuaciones where videoid = ? and username = ? ";
+		stmt = conn.prepareStatement(sql);
+		stmt.setString(1, videoid);
+		stmt.setString(2, usuario);
+		ResultSet rs = stmt.getGeneratedKeys();
+		if (!rs.next()) {
+			throw new ServerErrorException("You have already qualified this video!",
+					Response.Status.SERVICE_UNAVAILABLE);
+		}
+		
+		else {
+			////no se haace nada
+		}
+	}
 
 	// (10) Eliminar una reseña de un libro
 	// 10.1. Query a la base de datos:
@@ -701,11 +729,11 @@ public class VideoshareResource {
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 	@POST
-	@Path("/upload")
+	@Path("/upload/{username}")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	public Videos uploadVideo(@FormDataParam("title") String title,
 			@FormDataParam("video") InputStream video,
-			@FormDataParam("video") FormDataContentDisposition fileDisposition) {
+			@FormDataParam("video") FormDataContentDisposition fileDisposition, @FormDataParam("categoria") String categoria, @PathParam("username") String username) {
 
 		String donde = fileDisposition.getFileName();
 		System.out.println(donde);
@@ -720,13 +748,18 @@ public class VideoshareResource {
 					Response.Status.SERVICE_UNAVAILABLE);
 		}
 		PreparedStatement stmt = null;
+		PreparedStatement stmt2 = null;
 		try {
 			String sql = "insert into videos (nombre_video, username, fecha) values (?,?, now())";
+			String sql2 = "insert into categorias(videoid, categoria) values(?,?)";
 			stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+			stmt2 = conn.prepareStatement(sql2);
 			stmt.setString(1, title);
-			stmt.setString(2, "moha");
+			
+			stmt.setString(2, username);
 			System.out.println("Query:" + stmt);
 			stmt.executeUpdate();
+			
 			ResultSet rs = stmt.getGeneratedKeys();
 			if (rs.next()) {
 				videoid = rs.getInt(1);
@@ -735,7 +768,10 @@ public class VideoshareResource {
 				String file = app.getProperties().get("uploadFolder") + filename;
 				FileCopy(video, file);
 				video1 = getVideoFromDatabase(Integer.toString(videoid));
-				
+				stmt2.setInt(1, videoid);
+				stmt2.setString(2, categoria);
+				System.out.println("Query:" + stmt2);
+				stmt2.executeUpdate();
 			} else {
 				
 				// Something has failed...
@@ -829,12 +865,12 @@ public class VideoshareResource {
 		}
 	}
 
-	// Listar por categoria:
+	// Buscar un video por su titulo
 	@GET
-	@Path("/searchc")
+	@Path("/search")
 	@Produces(Mediatype.VIDEOSHARE_API_VIDEOS_COLLECTION)
-	public VideosCollection getVideoByCategoria(
-			@QueryParam("categoria") String categoria) {
+	public VideosCollection searchvideo(
+			@QueryParam("titulo") String titulo) {
 		System.out.println("Entramos en el método");
 		VideosCollection videos = new VideosCollection();
 
@@ -848,9 +884,10 @@ public class VideoshareResource {
 		}
 		PreparedStatement stmt = null;
 		try {
-			String sql = buildQueryGetVideoByCategoria();
+			String sql = buildQueryGetVideoBytitulo();
 			stmt = conn.prepareStatement(sql);
-			stmt.setString(1, categoria);
+			System.out.println(titulo);
+			stmt.setString(1, '%' + titulo + '%');
 			System.out.println("Query:" + stmt);
 			ResultSet rs = stmt.executeQuery();
 
@@ -859,6 +896,7 @@ public class VideoshareResource {
 			while (rs.next()) {
 				Videos video = new Videos();
 				video.setVideoid(rs.getString("videoid"));
+				System.out.println("AAAAAAAAAAAAAAAAA");
 				Videos video2 = getVideoFromDatabase(video.getVideoid());
 				System.out.println(video2.getUsername());
 				videos.addVideos(video2);
@@ -881,8 +919,8 @@ public class VideoshareResource {
 
 	// método para buscar y obtener libro a partir de la categoria:
 
-	private String buildQueryGetVideoByCategoria() {
-		String sql = "select * from categorias where categoria = ?";
+	private String buildQueryGetVideoBytitulo() {
+		String sql = "select * from videos where nombre_video like ?";
 		System.out.println("Query:" + sql);
 		return sql;
 	}
@@ -890,4 +928,580 @@ public class VideoshareResource {
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-}
+	// método para aumentar la puntuación de un video
+		@POST
+		@Path("/{videoid}/puntuacion")
+		@Consumes(Mediatype.VIDEOSHARE_API_PUNTUACION)
+		public Videos insterPuntuacion(@PathParam("videoid") String videoid,
+				Puntuaciones Puntos) throws SQLException {
+
+			Videos videop = new Videos();
+			Puntuaciones puntuacion = Puntos;
+			validateUserPunt(videoid, Puntos.getUsername());
+			//el primer es obtener los puntos que ya tiene el videoid en la tabla
+			//(si se da el caso de que el video ya ha sido puntuado, cualquier otro caso 0)
+			
+			int puntosvideo = getPuntuacionFromVideoid(videoid);
+			
+			if (puntosvideo == 0)
+			{
+				//hay que hacer un INSERT de nueva puntuación
+				videop = createPuntuacion(puntosvideo, puntuacion, videoid);
+			}
+			else
+			{
+				//hay que hacer un UPDATE de nueva puntuación
+				videop = updatePuntuacion(puntosvideo, puntuacion, videoid);
+			}
+			
+			return videop;
+			
+		}
+		private Videos createPuntuacion(int puntosvideo, Puntuaciones puntuacion, String videoid)
+		{
+			Videos video = new Videos();
+			
+			//ahora, añadimos los puntos:
+			int puntosnuevos = calculoPuntuacion(puntosvideo, puntuacion.getPuntuacion());
+			
+			//una vez ya tenemos el valor de puntos del video, sólo queda añadirlo en 
+			//	en la base de datos: 
+
+			Connection conn = null;
+			try {
+				conn = ds.getConnection();
+			} catch (SQLException e) {
+				throw new ServerErrorException("Could not connect to the database",
+						Response.Status.SERVICE_UNAVAILABLE);
+			}
+
+			PreparedStatement stmt = null;
+			try {
+				String sql = buildQueryInsertPuntuacion();
+				stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+				stmt.setInt(1, puntuacion.getVideoid());
+				stmt.setString(2, puntuacion.getUsername());
+				stmt.setInt(3, puntosnuevos);
+				
+				stmt.executeUpdate();
+				ResultSet rs = stmt.getGeneratedKeys();
+				if (rs.next()) {
+					//throw new ForbiddenException("You have got registered");
+					video = getVideoFromDatabase(videoid);
+				} else {
+					// Something has failed...
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} finally {
+				try {
+					if (stmt != null)
+						stmt.close();
+					conn.close();
+				} catch (SQLException e) {
+					throw new ServerErrorException(e.getMessage(),
+							Response.Status.INTERNAL_SERVER_ERROR);
+				}
+			}
+			
+			return video;
+		}
+		private Videos updatePuntuacion(int puntosvideo, Puntuaciones puntuacion, String videoid)
+		{
+			Videos video = new Videos();
+			
+			//ahora, añadimos los puntos:
+			int puntosnuevos = calculoPuntuacion(puntosvideo, puntuacion.getPuntuacion());
+			
+			//una vez ya tenemos el valor de puntos del video, sólo queda actualizarlo en 
+			//	en la base de datos: 
+
+			Connection conn = null;
+			try {
+				conn = ds.getConnection();
+			} catch (SQLException e) {
+				throw new ServerErrorException("Could not connect to the database",
+						Response.Status.SERVICE_UNAVAILABLE);
+			}
+
+			PreparedStatement stmt = null;
+			try {
+				String sql = buildQueryUpdatePuntuacion();
+				stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+
+				stmt.setInt(1, puntosnuevos);
+				stmt.setInt(2, puntuacion.getVideoid());
+				
+				stmt.executeUpdate();
+				ResultSet rs = stmt.getGeneratedKeys();
+				if (rs.next()) {
+					//throw new ForbiddenException("You have got registered");
+					video = getVideoFromDatabase(videoid);
+				} else {
+					// Something has failed...
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} finally {
+				try {
+					if (stmt != null)
+						stmt.close();
+					conn.close();
+				} catch (SQLException e) {
+					throw new ServerErrorException(e.getMessage(),
+							Response.Status.INTERNAL_SERVER_ERROR);
+				}
+			}
+			
+			return video;
+		}
+
+		private String buildQueryUpdatePuntuacion() {
+			return "update puntuaciones set puntuacion = ? where videoid = ?";
+		}
+		
+		private String buildQueryInsertPuntuacion() {
+			return "insert into puntuaciones (videoid, username, puntuacion) value (?,?,?) ";
+		}
+
+		private int getPuntuacionFromVideoid(String videoid)
+		{
+			
+			int puntos=0;
+			
+			Connection conn = null;
+			try {
+				conn = ds.getConnection();
+			} catch (SQLException e) {
+				throw new ServerErrorException("Could not connect to the database",
+						Response.Status.SERVICE_UNAVAILABLE);
+			}
+
+			PreparedStatement stmt = null;
+			try {
+				String sql = "select puntuacion from puntuaciones where videoid="+videoid;
+				stmt = conn.prepareStatement(sql);
+
+				ResultSet rs = stmt.executeQuery();
+			
+				if (rs.next()) {
+					puntos = rs.getInt("puntuacion");
+					System.out.println("Se han obtenido los puntos del video: " + puntos);
+				} else {
+					// Something has failed...
+					// throw new NotFoundException();
+					System.out.println("No se ha encontrado la puntuación en la tabla");
+					puntos = 0;
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} finally {
+				try {
+					if (stmt != null)
+						stmt.close();
+					conn.close();
+				} catch (SQLException e) {
+					throw new ServerErrorException(e.getMessage(),
+							Response.Status.INTERNAL_SERVER_ERROR);
+				}
+			}
+			
+			//sea cual sea el resultado devuelve puntos (el valor de la tabla o 0)
+			return puntos;
+		}
+		
+		//Método para calcular la suma de puntos
+		private int calculoPuntuacion(int puntoiniciales, int nuevospuntos)
+		{
+			int sumapuntos;
+			
+			sumapuntos = puntoiniciales + nuevospuntos;
+			
+			return sumapuntos;
+			
+		}
+		
+		
+		
+		// * * * *
+		// para ordenar por categoria/puntuación/
+		@GET
+		@Path("/bypuntuacion")
+		@Produces(Mediatype.VIDEOSHARE_API_VIDEOS_COLLECTION)
+		public VideosCollection getVideosOrderByPuntuacion() {
+			VideosCollection videos = new VideosCollection();
+			Videos video = new Videos();
+			// hacemos la conexión a la base de datos
+			Connection conn = null;
+			try {
+				conn = ds.getConnection();
+			} catch (SQLException e) {
+				throw new ServerErrorException(
+						"Could not connect to the databaseeeeeeeeeeeeee",
+						Response.Status.SERVICE_UNAVAILABLE);
+			}
+
+			PreparedStatement stmt = null;
+			try {
+				String sql = buildQueryGetVideosOrderByPuntuacion();
+				stmt = conn.prepareStatement(sql);
+				// obtenemos la respuesta
+				ResultSet rs = stmt.executeQuery();
+
+				while (rs.next()) {
+					try {
+
+						String videoid = rs.getString("videoid");
+
+						// ahora obtenemos la info del video con videoid:
+						video = getVideoFromDatabase(videoid);
+
+					} catch (SQLException e) {
+						throw new ServerErrorException(e.getMessage(),
+								Response.Status.INTERNAL_SERVER_ERROR);
+					} finally {
+						System.out.println("ahora añade el video");
+						videos.addVideos(video);
+					}
+				}
+			} catch (SQLException e) {
+				throw new ServerErrorException(e.getMessage(),
+						Response.Status.INTERNAL_SERVER_ERROR);
+			} finally {
+				try {
+					if (stmt != null)
+						stmt.close();
+					conn.close();
+				} catch (SQLException e) {
+					throw new NotFoundException();
+				}
+			}
+
+			return videos;
+		}
+
+		// (1)GET colección de libros
+		private String buildQueryGetVideosOrderByPuntuacion() {
+			return "select * from puntuaciones order by puntuacion";
+		}
+
+		// * * *
+
+		@GET
+		@Path("/bycategoria")
+		@Produces(Mediatype.VIDEOSHARE_API_VIDEOS_COLLECTION)
+		public VideosCollection getVideosOrderByCategoria() {
+			VideosCollection videos = new VideosCollection();
+			Videos video = new Videos();
+			// hacemos la conexión a la base de datos
+			Connection conn = null;
+			try {
+				conn = ds.getConnection();
+			} catch (SQLException e) {
+				throw new ServerErrorException(
+						"Could not connect to the databaseeeeeeeeeeeeee",
+						Response.Status.SERVICE_UNAVAILABLE);
+			}
+
+			PreparedStatement stmt = null;
+			try {
+				String sql = buildQueryGetVideosOrderByCategoria();
+				stmt = conn.prepareStatement(sql);
+				// obtenemos la respuesta
+				ResultSet rs = stmt.executeQuery();
+
+				while (rs.next()) {
+					try {
+
+						String videoid = rs.getString("videoid");
+
+						// ahora obtenemos la info del video con videoid:
+						video = getVideoFromDatabase(videoid);
+
+					} catch (SQLException e) {
+						throw new ServerErrorException(e.getMessage(),
+								Response.Status.INTERNAL_SERVER_ERROR);
+					} finally {
+						System.out.println("ahora añade el video");
+						videos.addVideos(video);
+					}
+				}
+			} catch (SQLException e) {
+				throw new ServerErrorException(e.getMessage(),
+						Response.Status.INTERNAL_SERVER_ERROR);
+			} finally {
+				try {
+					if (stmt != null)
+						stmt.close();
+					conn.close();
+				} catch (SQLException e) {
+					throw new NotFoundException();
+				}
+			}
+
+			return videos;
+		}
+
+		// (1)GET colección de libros
+		private String buildQueryGetVideosOrderByCategoria() {
+			return "select * from categorias order by categoria";
+		}
+
+		// * * *
+		// Ordernar por fecha
+		@GET
+		@Path("/byfecha")
+		@Produces(Mediatype.VIDEOSHARE_API_VIDEOS_COLLECTION)
+		public VideosCollection getVideosOrderByDate() {
+			VideosCollection videos = new VideosCollection();
+			Videos video = new Videos();
+			// hacemos la conexión a la base de datos
+			Connection conn = null;
+			try {
+				conn = ds.getConnection();
+			} catch (SQLException e) {
+				throw new ServerErrorException(
+						"Could not connect to the databaseeeeeeeeeeeeee",
+						Response.Status.SERVICE_UNAVAILABLE);
+			}
+
+			PreparedStatement stmt = null;
+			try {
+				String sql = buildQueryGetVideosOrderByCategoria();
+				stmt = conn.prepareStatement(sql);
+				// obtenemos la respuesta
+				ResultSet rs = stmt.executeQuery();
+
+				while (rs.next()) {
+					try {
+
+						String videoid = rs.getString("videoid");
+
+						// ahora obtenemos la info del video con videoid:
+						video = getVideoFromDatabase(videoid);
+
+					} catch (SQLException e) {
+						throw new ServerErrorException(e.getMessage(),
+								Response.Status.INTERNAL_SERVER_ERROR);
+					} finally {
+						System.out.println("ahora añade el video");
+						videos.addVideos(video);
+					}
+				}
+			} catch (SQLException e) {
+				throw new ServerErrorException(e.getMessage(),
+						Response.Status.INTERNAL_SERVER_ERROR);
+			} finally {
+				try {
+					if (stmt != null)
+						stmt.close();
+					conn.close();
+				} catch (SQLException e) {
+					throw new NotFoundException();
+				}
+			}
+
+			return videos;
+		}
+
+		// (1)GET colección de libros
+		private String buildQueryGetVideosOrderByDate() {
+			return "select * from videos order by fecha";
+		}
+		
+
+		// * * *
+		// Ordernar por fecha
+		@GET
+		@Path("/byusername")
+		@Produces(Mediatype.VIDEOSHARE_API_VIDEOS_COLLECTION)
+		public VideosCollection getVideosOrderByUsername() {
+			VideosCollection videos = new VideosCollection();
+			Videos video = new Videos();
+			// hacemos la conexión a la base de datos
+			Connection conn = null;
+			try {
+				conn = ds.getConnection();
+			} catch (SQLException e) {
+				throw new ServerErrorException(
+						"Could not connect to the databaseeeeeeeeeeeeee",
+						Response.Status.SERVICE_UNAVAILABLE);
+			}
+
+			PreparedStatement stmt = null;
+			try {
+				String sql = buildQueryGetVideosOrderUsername();
+				stmt = conn.prepareStatement(sql);
+				// obtenemos la respuesta
+				ResultSet rs = stmt.executeQuery();
+
+				while (rs.next()) {
+					try {
+
+						String videoid = rs.getString("videoid");
+
+						// ahora obtenemos la info del video con videoid:
+						video = getVideoFromDatabase(videoid);
+
+					} catch (SQLException e) {
+						throw new ServerErrorException(e.getMessage(),
+								Response.Status.INTERNAL_SERVER_ERROR);
+					} finally {
+						System.out.println("ahora añade el video");
+						videos.addVideos(video);
+					}
+				}
+			} catch (SQLException e) {
+				throw new ServerErrorException(e.getMessage(),
+						Response.Status.INTERNAL_SERVER_ERROR);
+			} finally {
+				try {
+					if (stmt != null)
+						stmt.close();
+					conn.close();
+				} catch (SQLException e) {
+					throw new NotFoundException();
+				}
+			}
+
+			return videos;
+		}
+
+		// (1)GET colección de libros
+		private String buildQueryGetVideosOrderUsername() {
+			return "select * from videos order by username";
+		}
+		/// * * * * obtener por categoria
+		
+		
+			@GET
+			@Path("/searchc")
+			@Produces(Mediatype.VIDEOSHARE_API_VIDEOS_COLLECTION)
+			public VideosCollection getVideosByCategoria(@QueryParam("categoria") String categoria) {
+				VideosCollection videos = new VideosCollection();
+				Videos video = new Videos();
+				// hacemos la conexión a la base de datos
+				Connection conn = null;
+				try {
+					conn = ds.getConnection();
+				} catch (SQLException e) {
+					throw new ServerErrorException(
+							"Could not connect to the databaseeeeeeeeeeeeee",
+							Response.Status.SERVICE_UNAVAILABLE);
+				}
+
+				PreparedStatement stmt = null;
+				try {
+					String sql = buildQueryGetVideosByCategoria();
+					stmt = conn.prepareStatement(sql);
+					stmt.setString(1, categoria);
+					// obtenemos la respuesta
+					ResultSet rs = stmt.executeQuery();
+
+					while (rs.next()) {
+						try {
+							System.out.println("hemos obtenido video a partir de la categoría");
+							String videoid = rs.getString("videoid");
+
+							// ahora obtenemos la info del video con videoid:
+							video = getVideoFromDatabase(videoid);
+							System.out.println("se ha añadido a la colección");
+
+						} catch (SQLException e) {
+							throw new ServerErrorException(e.getMessage(),
+									Response.Status.INTERNAL_SERVER_ERROR);
+						} finally {
+							System.out.println("ahora añade el video");
+							videos.addVideos(video);
+						}
+					}
+				} catch (SQLException e) {
+					throw new ServerErrorException(e.getMessage(),
+							Response.Status.INTERNAL_SERVER_ERROR);
+				} finally {
+					try {
+						if (stmt != null)
+							stmt.close();
+						conn.close();
+					} catch (SQLException e) {
+						throw new NotFoundException();
+					}
+				}
+
+				return videos;
+			}
+
+			// (1)GET colección de libros
+			private String buildQueryGetVideosByCategoria() {
+				return "select * from categorias where categoria = ?";
+			}
+			
+			
+			// * * * * * ** *  * * 
+			//login del usuario
+			// crear un nuevo usuario.
+			@POST
+			@Path("/login")
+			@Consumes(Mediatype.VIDEOSHARE_API_USERS)
+			@Produces(Mediatype.VIDEOSHARE_API_USERS)
+			public User loginUser(User usuario) throws Exception {
+
+				System.out.println("Entra en método login usuario");
+				Connection conn = null;
+				try {
+					conn = ds.getConnection();
+				} catch (SQLException e) {
+					throw new ServerErrorException("Could not connect to the database",
+							Response.Status.SERVICE_UNAVAILABLE);
+				}
+				
+				String userlogname=usuario.getUsername();
+				String userlogpass=md5(usuario.getUserpass());
+				
+				PreparedStatement stmt = null;
+				try {
+					String sql = buildLoginUser();
+					stmt = conn.prepareStatement(sql);
+					stmt.setString(1, usuario.getUsername());				
+					ResultSet rs = stmt.executeQuery();
+
+					if (rs.next()) {
+						//String username = rs.getString("username");
+						String userpass = rs.getString("userpass");
+						
+						if(userlogpass.equals(userpass))
+						{
+							System.out.println("Usuario y password son correctos.");
+						}
+						else
+						{
+							System.out.println("Usuario y/o password son incorrectos.");
+							throw new Exception("Erro de login.");
+						}
+					} else {
+						throw new Exception("Ningún usuario con ese username y password.");
+					}
+				} catch (SQLException e) {
+					e.printStackTrace();
+				} finally {
+					try {
+						if (stmt != null)
+							stmt.close();
+						conn.close();
+					} catch (SQLException e) {
+						throw new ServerErrorException(e.getMessage(),
+								Response.Status.INTERNAL_SERVER_ERROR);
+					}
+				}
+				return usuario;
+			}
+			
+			private String buildLoginUser()
+			{
+				return "select * from users where username=?";
+			}
+
+	}
+
+
+
