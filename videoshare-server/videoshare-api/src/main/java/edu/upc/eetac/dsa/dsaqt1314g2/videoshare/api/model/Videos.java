@@ -14,14 +14,14 @@ import org.glassfish.jersey.linking.InjectLinks;
 import edu.upc.eetac.dsa.dsaqt1314g2.videoshare.api.Mediatype;
 import edu.upc.eetac.dsa.dsaqt1314g2.videoshare.api.VideoshareResource;
 
-@InjectLinks({
-	@InjectLink(resource = VideoshareResource.class, style = Style.ABSOLUTE, rel = "videos", title = "Coleccion de videos", type = Mediatype.VIDEOSHARE_API_VIDEOS_COLLECTION),
-	@InjectLink(resource = VideoshareResource.class, style = Style.ABSOLUTE, rel = "self edit", title = "videos", type = Mediatype.VIDEOSHARE_API_VIDEOS, method = "getVideoid", bindings = @Binding(name = "videoid", value = "${instance.videoid}")) }) 
+
 
 
 public class Videos {
-
-
+	@InjectLinks({
+		@InjectLink(resource = VideoshareResource.class, style = Style.ABSOLUTE, rel = "videos", title = "Coleccion de videos", type = Mediatype.VIDEOSHARE_API_VIDEOS_COLLECTION),
+		@InjectLink(resource = VideoshareResource.class, style = Style.ABSOLUTE, rel = "self edit", title = "videos", type = Mediatype.VIDEOSHARE_API_VIDEOS, method = "getVideoid", bindings = @Binding(name = "videoid", value = "${instance.videoid}")) }) 
+	
 	private List<Link> links;
 	private String videoid;
 	private String nombre_video;

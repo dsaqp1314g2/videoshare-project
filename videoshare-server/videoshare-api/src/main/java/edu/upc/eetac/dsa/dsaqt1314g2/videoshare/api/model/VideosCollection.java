@@ -13,10 +13,8 @@ import edu.upc.eetac.dsa.dsaqt1314g2.videoshare.api.Mediatype;
 import edu.upc.eetac.dsa.dsaqt1314g2.videoshare.api.VideoshareResource;
 
 public class VideosCollection {
-
-	@InjectLinks({ @InjectLink(resource = VideoshareResource.class, style = Style.ABSOLUTE, rel = "create", title = "Create video", type = Mediatype.VIDEOSHARE_API_VIDEOS)
-
-	})
+	@InjectLinks({ @InjectLink(resource = VideoshareResource.class, style = Style.ABSOLUTE, rel = "create", title = "Create video", type = Mediatype.VIDEOSHARE_API_VIDEOS) })
+	
 	private List<Link> links;
 	private List<Videos> video;
 
