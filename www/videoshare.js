@@ -308,8 +308,19 @@ function getVideoById(videoid)
            
     }).done(function(data, status, jqxhr) {
         var videos = data;
+        
         if(videos.nombre_video!=null)
 		{		
+
+			if(getCookie('username')=="") //no se ha hecho loggin:
+			{
+				document.getElementById('username_login').innerHTML = "<FONT FACE=\"impact\" SIZE=6 COLOR=\"black\"> ¡Inicia Sesión!</FONT>";
+			}
+			else	
+			{
+				document.getElementById('username_login').innerHTML = "<FONT FACE=\"impact\" SIZE=6 COLOR=\"black\">"+getCookie('username')+" </FONT>";
+			}					
+			
 					$('<center><div class ="col-sm-12" style="padding: 10px 10px 11px 0px;" ><h3><b>' + videos.nombre_video+ '</b></h3></div></center>').appendTo($('#videos_result'));
 							 //añadimos para reproducir el vídeo en html el siguiente código:
 				    $(' <div class="col-sm-12"><video id ="demo" src="'+ videos.url+'" type="video/webm" controls>Tu navegador no implementa el elemento <code>video</code>.<div><button onclick="document.getElementById(\'demo\').play()">Reproducir el Audio</button><button onclick="document.getElementById(\'demo\').pause()">Pausar el Audio</button><button onclick="document.getElementById(\'demo\').volume+=0.1">Aumentar el Volumen</butto<button onclick="document.getElementById(\'demo\').volume-=0.1">Disminuir el Volumen</button></div></video></div>').appendTo($('#videos_result'));
@@ -515,7 +526,9 @@ function Login(newLogin) {
 			processData : false
            
            }).done(function(data, status, jqxhr) {
-                $('<div class="alert alert-success"> <strong>Wellcome to Videoshare! </strong></div>').appendTo($("#loginform"));
+               
+        	   
+        	   $('<div class="alert alert-success"> <strong>Wellcome to Videoshare! </strong></div>').appendTo($("#loginform"));
 			
 				setCookie('username', username, 1 );
 				var usernamec = getCookie('username');
