@@ -1,4 +1,4 @@
-var API_BASE_URL = "http://localhost:8080/videoshare-api/videoshare";
+var API_BASE_URL = "http://147.83.7.156:8080/videoshare-api/videoshare";
 //window.onload = getVideos();
 var videoid_now;
 var cookies = document.cookie;
@@ -231,7 +231,7 @@ $("#button_username").click(function(e) {
 
 // métodos:
 function getVideos(){
-    var url = "http://localhost:8080/videoshare-api/videoshare";
+    var url = "http://147.83.7.156:8080/videoshare-api/videoshare";
 	$("#videos_result").text(' ');
 	
 	$.ajax({
@@ -297,7 +297,7 @@ function getVideos(){
 }
 function getVideoById(videoid)
 {
-	var url = "http://localhost:8080/videoshare-api/videoshare/"+videoid;
+	var url = "http://147.83.7.156:8080/videoshare-api/videoshare/"+videoid;
 	$("#videos_result").text(' ');
 	$("#videosreviews_result").text(' ');
 	videoid_now = videoid;
@@ -368,7 +368,7 @@ function getVideoById(videoid)
 
 function getVideosByX(ordenarpor)
 {
-    var url = "http://localhost:8080/videoshare-api/videoshare/" + ordenarpor;
+    var url = "http://147.83.7.156:8080/videoshare-api/videoshare/" + ordenarpor;
 	$("#videos_result").text(' ');
 	
 	$.ajax({
@@ -435,7 +435,7 @@ function getVideosByX(ordenarpor)
 
 function buscarPorCategoria(categoria)
 {
-    var url = "http://localhost:8080/videoshare-api/videoshare/searchc?categoria="+categoria;
+    var url = "http://147.83.7.156:8080/videoshare-api/videoshare/searchc?categoria="+categoria;
 	$("#videos_result").text(' ');
 	
 	$.ajax({
@@ -708,7 +708,7 @@ function updateVideo(videoid) {
 
 function searchIt(titulo)
 {
- var url = "http://localhost:8080/videoshare-api/videoshare/search?titulo="+titulo;
+ var url = "http://147.83.7.156:8080/videoshare-api/videoshare/search?titulo="+titulo;
 	$("#videos_result").text(' ');
 	
 	$.ajax({
