@@ -28,7 +28,16 @@ public class Videos {
 	private String username;
 	private Date fecha;
 	private String url;
+	public int getPuntuacion() {
+		return puntuacion;
+	}
+
+	public void setPuntuacion(int puntuacion) {
+		this.puntuacion = puntuacion;
+	}
 	private String filename;
+	private int puntuacion;
+	
     
     
     //Para añadir a Reviews, Tags, Puntuaciones...

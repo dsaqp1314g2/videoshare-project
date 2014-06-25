@@ -12,54 +12,58 @@
                 <!-- Optional theme -->
                 <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
                     
-                    
+
                     </head>
     <body>
 	<body background ="fondo2.jpg"> 
         <!-- Logo + contenedor naranja superior -->
-        <div class="container theme-showcase" role="main" >
-            <div style="background-color:#FDC556; " class="jumbotron">
-		
-			<img src="Logo9.gif" class="" style="float:center"border="" width="300" height="70">  <div class="input-group input-group-sm">
-		
-		</div>
+       <div class="container theme-showcase" role="main" >
+            <div style="background-color:#FDC556;" class="jumbotron">
+			<img src="Logo9.gif" class="" style="float:center"border="" width="300" height="70">  
+			<h3 style="float:right" id="username_login"><FONT FACE="impact" SIZE=6 COLOR="black"> ¡Inicia Sesión!</FONT></h3>
+			<div class="input-group input-group-sm">
+			</div>
 		<!-- Fin Logo -->
          
 <!-- Inicio barra de navegación -->
-<nav class="navbar navbar-inverse" role="navigation" " >
-  <div class="navbar-header">
-    <button type="button" class="navbar-toggle" data-toggle="collapse"
-            data-target=".navbar-ex1-collapse" style="background-color:orange">
-      <span class="sr-only">Desplegar navegación</span>
-      <span class="icon-bar"></span>
-      <span class="icon-bar"></span>
-      <span class="icon-bar"></span>
-    </button>
-    
-  </div>
- 
-<div class="collapse navbar-collapse navbar-ex1-collapse" >
-	<ul class="nav navbar-nav navbar-left">
-		<li><a onClick="location.href='Videoshare.html'">Inicio</a></li>
-    </ul>
-  <ul class="nav navbar-nav">
-    <form class="navbar-form navbar-left" role="search" >
-      <div class="form-group">
-        <input type="text" size="80" class="form-control" placeholder="Buscar">
-      </div>
-      <button type="button" class="btn default" id="button_search" style="color:white;background-color:orange;">Search it!</button>
-    </form>
- 
-    <ul class="nav navbar-nav navbar-right">
-		<li><a onClick="location.href='SubirVideo.html'">Share it!</a></li>
-		<li><a onClick="location.href='login.html'">Log in</a></li>
-		<li><a onClick="location.href='signin.html'">Sign in</a></li>
-    </ul>
-	</ul>
-</div>
+
+	<nav class="navbar navbar-inverse" role="navigation" " >
+	  <div class="navbar-header">
+		<button type="button" class="navbar-toggle" data-toggle="collapse"
+				data-target=".navbar-ex1-collapse" style="background-color:orange">
+		  <span class="sr-only">Desplegar navegación</span>
+		  <span class="icon-bar"></span>
+		  <span class="icon-bar"></span>
+		  <span class="icon-bar"></span>
+		</button>
+		
+	  </div>
+	 
+	<div class="collapse navbar-collapse navbar-ex1-collapse" >
+		<ul class="nav navbar-nav navbar-left">
+			<li><a onClick="location.href='Videoshare.html'">Inicio</a></li>
+		</ul>
+	  <ul class="nav navbar-nav">
+		<form class="navbar-form navbar-left" role="search" >
+		  <div class="form-group">
+			<input type="text" size="60" class="form-control" placeholder="Buscar">
+		  </div>
+		  <button type="button" class="btn default" id="button_search" style="color:white;background-color:orange;">Search it!</button>
+		</form>
+		</ul>
+	 
+	 
+			<ul class="nav navbar-nav navbar-right">
+			<li><a id="shareit" onClick="location.href='SubirVideo.html'">Share it!</a></li>
+			<li><a id="signintoolbar" onClick="location.href='signup.html'">Sign up</a></li>
+			<li><a id="login_logout" onClick="location.href='login.html'">Log in</a></li>
+			<li><a id="signintoolbar" onClick="location.href='Logout.html'">Log out</a></li>
+		</ul>
+	</div>
+	<!-- </div>
+
 
 <!-- hasta aquí barra de navegación -->
-
 	</div>
 			
 			

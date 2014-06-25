@@ -31,7 +31,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
             android:gravity="right"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="TextView" />
     </LinearLayout>
  
 </LinearLayout>

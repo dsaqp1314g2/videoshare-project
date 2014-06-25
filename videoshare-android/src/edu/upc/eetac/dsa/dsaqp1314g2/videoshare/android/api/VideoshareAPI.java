@@ -101,6 +101,8 @@ public class VideoshareAPI {
 		try {
 			urlConnection = (HttpURLConnection) new URL(rootAPI.getLinks()
 					.get("create").getTarget()).openConnection();
+			//System.out.println(rootAPI.getLinks()
+			//		.get("create").getTarget());
 			urlConnection.setRequestMethod("GET");
 			urlConnection.setDoInput(true);
 			urlConnection.connect();
@@ -130,7 +132,179 @@ public class VideoshareAPI {
 				JSONObject jsonSting = jsonStings.getJSONObject(i);// le doy valor a traves del array y lo a�ado a la coleccion qe es lo qe lo devuelves
 				video.setNombre_video(jsonSting.getString("nombre_video"));
 				video.setVideoid(jsonSting.getString("videoid"));//se van a�adiendo
-				
+				video.setPuntuacion(jsonSting.getString("puntuacion"));
+			//	video.setPuntuacion(jsonSting.getString("puntuacion"));;
+				video.setUrl(jsonSting.getString("url"));
+				video.setUsername(jsonSting.getString("username"));
+				jsonLinks = jsonSting.getJSONArray("links");
+				parseLinks(jsonLinks, video.getLinks());
+				videos.getVideos().add(video);
+			}
+		} catch (IOException e) {
+			throw new VideoshareAndroidException(
+					"Can't get response from Beeter API Web Service");
+		} catch (JSONException e) {
+			throw new VideoshareAndroidException("Error parsing Beeter Root API");
+		}
+ 
+		return videos;
+	}
+	
+	public VideosCollection getCollectionVideosByCategoria() throws VideoshareAndroidException {
+		Log.d(TAG, "getCollectionVideosByCategoria");
+		VideosCollection videos = new VideosCollection();
+ 
+		HttpURLConnection urlConnection = null;
+		try {
+			urlConnection = (HttpURLConnection) new URL(rootAPI.getLinks()
+					.get("create").getTarget()+"/bycategoria").openConnection();
+			//System.out.println(rootAPI.getLinks()
+			//		.get("create").getTarget());
+			urlConnection.setRequestMethod("GET");
+			urlConnection.setDoInput(true);
+			urlConnection.connect();
+		} catch (IOException e) {
+			throw new VideoshareAndroidException(
+					"Can't connect to Videoshare API Web Service");
+		}
+ 
+		BufferedReader reader;
+		try {
+			reader = new BufferedReader(new InputStreamReader(
+					urlConnection.getInputStream()));
+			StringBuilder sb = new StringBuilder();
+			String line = null;
+			while ((line = reader.readLine()) != null) {
+				sb.append(line);
+			}
+ 
+			JSONObject jsonObject = new JSONObject(sb.toString());
+			JSONArray jsonLinks = jsonObject.getJSONArray("links");//atributoss
+			parseLinks(jsonLinks, videos.getLinks());
+ 
+			
+			JSONArray jsonStings = jsonObject.getJSONArray("video");
+			for (int i = 0; i < jsonStings.length(); i++) {
+				Videos video = new Videos();//creo un sting
+				JSONObject jsonSting = jsonStings.getJSONObject(i);// le doy valor a traves del array y lo a�ado a la coleccion qe es lo qe lo devuelves
+				video.setNombre_video(jsonSting.getString("nombre_video"));
+				video.setVideoid(jsonSting.getString("videoid"));//se van a�adiendo
+				video.setPuntuacion(jsonSting.getString("puntuacion"));
+			//	video.setPuntuacion(jsonSting.getString("puntuacion"));;
+				video.setUrl(jsonSting.getString("url"));
+				video.setUsername(jsonSting.getString("username"));
+				jsonLinks = jsonSting.getJSONArray("links");
+				parseLinks(jsonLinks, video.getLinks());
+				videos.getVideos().add(video);
+			}
+		} catch (IOException e) {
+			throw new VideoshareAndroidException(
+					"Can't get response from Beeter API Web Service");
+		} catch (JSONException e) {
+			throw new VideoshareAndroidException("Error parsing Beeter Root API");
+		}
+ 
+		return videos;
+	}
+	
+	public VideosCollection getCollectionVideosByPuntuacion() throws VideoshareAndroidException {
+		Log.d(TAG, "getCollectionVideosByPuntuacion");
+		VideosCollection videos = new VideosCollection();
+ 
+		HttpURLConnection urlConnection = null;
+		try {
+			urlConnection = (HttpURLConnection) new URL(rootAPI.getLinks()
+					.get("create").getTarget()+"/bypuntuacion").openConnection();
+			//System.out.println(rootAPI.getLinks()
+			//		.get("create").getTarget());
+			urlConnection.setRequestMethod("GET");
+			urlConnection.setDoInput(true);
+			urlConnection.connect();
+		} catch (IOException e) {
+			throw new VideoshareAndroidException(
+					"Can't connect to Videoshare API Web Service");
+		}
+ 
+		BufferedReader reader;
+		try {
+			reader = new BufferedReader(new InputStreamReader(
+					urlConnection.getInputStream()));
+			StringBuilder sb = new StringBuilder();
+			String line = null;
+			while ((line = reader.readLine()) != null) {
+				sb.append(line);
+			}
+ 
+			JSONObject jsonObject = new JSONObject(sb.toString());
+			JSONArray jsonLinks = jsonObject.getJSONArray("links");//atributoss
+			parseLinks(jsonLinks, videos.getLinks());
+ 
+			
+			JSONArray jsonStings = jsonObject.getJSONArray("video");
+			for (int i = 0; i < jsonStings.length(); i++) {
+				Videos video = new Videos();//creo un sting
+				JSONObject jsonSting = jsonStings.getJSONObject(i);// le doy valor a traves del array y lo a�ado a la coleccion qe es lo qe lo devuelves
+				video.setNombre_video(jsonSting.getString("nombre_video"));
+				video.setVideoid(jsonSting.getString("videoid"));//se van a�adiendo
+				video.setPuntuacion(jsonSting.getString("puntuacion"));
+			//	video.setPuntuacion(jsonSting.getString("puntuacion"));;
+				video.setUrl(jsonSting.getString("url"));
+				video.setUsername(jsonSting.getString("username"));
+				jsonLinks = jsonSting.getJSONArray("links");
+				parseLinks(jsonLinks, video.getLinks());
+				videos.getVideos().add(video);
+			}
+		} catch (IOException e) {
+			throw new VideoshareAndroidException(
+					"Can't get response from Beeter API Web Service");
+		} catch (JSONException e) {
+			throw new VideoshareAndroidException("Error parsing Beeter Root API");
+		}
+ 
+		return videos;
+	}
+	
+	public VideosCollection getCollectionVideosByUsers() throws VideoshareAndroidException {
+		Log.d(TAG, "getCollectionVideosByUsers");
+		VideosCollection videos = new VideosCollection();
+ 
+		HttpURLConnection urlConnection = null;
+		try {
+			urlConnection = (HttpURLConnection) new URL(rootAPI.getLinks()
+					.get("create").getTarget()+"/byusername").openConnection();
+			//System.out.println(rootAPI.getLinks()
+			//		.get("create").getTarget());
+			urlConnection.setRequestMethod("GET");
+			urlConnection.setDoInput(true);
+			urlConnection.connect();
+		} catch (IOException e) {
+			throw new VideoshareAndroidException(
+					"Can't connect to Videoshare API Web Service");
+		}
+ 
+		BufferedReader reader;
+		try {
+			reader = new BufferedReader(new InputStreamReader(
+					urlConnection.getInputStream()));
+			StringBuilder sb = new StringBuilder();
+			String line = null;
+			while ((line = reader.readLine()) != null) {
+				sb.append(line);
+			}
+ 
+			JSONObject jsonObject = new JSONObject(sb.toString());
+			JSONArray jsonLinks = jsonObject.getJSONArray("links");//atributoss
+			parseLinks(jsonLinks, videos.getLinks());
+ 
+			
+			JSONArray jsonStings = jsonObject.getJSONArray("video");
+			for (int i = 0; i < jsonStings.length(); i++) {
+				Videos video = new Videos();//creo un sting
+				JSONObject jsonSting = jsonStings.getJSONObject(i);// le doy valor a traves del array y lo a�ado a la coleccion qe es lo qe lo devuelves
+				video.setNombre_video(jsonSting.getString("nombre_video"));
+				video.setVideoid(jsonSting.getString("videoid"));//se van a�adiendo
+				video.setPuntuacion(jsonSting.getString("puntuacion"));
+			//	video.setPuntuacion(jsonSting.getString("puntuacion"));;
 				video.setUrl(jsonSting.getString("url"));
 				video.setUsername(jsonSting.getString("username"));
 				jsonLinks = jsonSting.getJSONArray("links");
@@ -181,10 +355,16 @@ public class VideoshareAPI {
 			video.setNombre_video(jsonVideo.getString("nombre_video"));
 			video.setVideoid(jsonVideo.getString("videoid"));//se van a�adiendo
 			
-			video.setUrl("http://192.168.1.53/video/"+jsonVideo.getString("videoid")+".webm");
+			video.setUrl("http://10.89.89.150/video/"+jsonVideo.getString("videoid")+".webm");
 			video.setUsername(jsonVideo.getString("username"));
 			JSONArray categorias = jsonVideo.getJSONArray("categorias");
+		//	JSONArray puntuacion = jsonVideo.getJSONArray("puntuaciones");
+			
+		/*	for (int i = 0; i < puntuacion.length(); i++) {
+				JSONObject jsonObject = puntuacion.getJSONObject(i);
+			video.setPuntuacion(jsonObject.getString("puntuacion"));
 			//video.setCategoria(jsonVideo.getString("categorias"));
+			} */
 			for (int i = 0; i < categorias.length(); i++) {
 		        JSONObject jsonObject = categorias.getJSONObject(i);
 		     video.setCategoria(jsonObject.getString("categoria"));
@@ -224,11 +404,11 @@ public class VideoshareAPI {
 	 
 		return video;
 	}
-	/*
-	public Videos createVideo(String subject, String content) throws VideosAndroidException {
-		Sting sting = new Sting();
-		sting.setSubject(subject);
-		sting.setContent(content);
+/*	
+	public Videos createcomment(String comentario) throws VideoshareAndroidException {
+		Videos sting = new Videos();
+		sting.setReview(comentario);;
+		//sting.setContent(content);
 		HttpURLConnection urlConnection = null;
 		try {
 			JSONObject jsonSting = createJsonSting(sting);
@@ -236,9 +416,9 @@ public class VideoshareAPI {
 					.getTarget());
 			urlConnection = (HttpURLConnection) urlPostStings.openConnection();
 			urlConnection.setRequestProperty("Accept",
-					MediaType.BEETER_API_STING);
+					MediaType.VIDEOSHARE_API_REVIEWS);
 			urlConnection.setRequestProperty("Content-Type",
-					MediaType.BEETER_API_STING);
+					MediaType.VIDEOSHARE_API_REVIEWS);
 			urlConnection.setRequestMethod("POST");
 			urlConnection.setDoInput(true);
 			urlConnection.setDoOutput(true);
@@ -266,7 +446,7 @@ public class VideoshareAPI {
 			parseLinks(jsonLinks, sting.getLinks());
 		} catch (JSONException e) {
 			Log.e(TAG, e.getMessage(), e);
-			throw new BeeterAndroidException("Error parsing response");
+			throw new VideoshareAndroidException("Error parsing response");
 		} catch (IOException e) {
 			Log.e(TAG, e.getMessage(), e);
 			throw new BeeterAndroidException("Error getting response");
@@ -283,14 +463,14 @@ public class VideoshareAPI {
 	//finish acaba actividad y vuelve a la anterior en este caso a la lista de stings , mostrat actividad tal i como estaba
 	//en el showstings parecido al finish pero con la lista actualizada
 	//post obtenemos  do input leemos, doutpu envamios, createstingjson, atraves de el metodo pivado, se crea json object i se van colocando valores 
-	private JSONObject createJsonSting(Sting sting) throws JSONException {
+	private JSONObject createJsonSting(Videos sting) throws JSONException {
 		JSONObject jsonSting = new JSONObject();
-		jsonSting.put("subject", sting.getSubject());
-		jsonSting.put("content", sting.getContent());
+		jsonSting.put("subject", sting.getReview());
+		//jsonSting.put("content", sting.getContent());
 	 
 		return jsonSting;
 	}
 	
-	*/
 	
+	*/
 }

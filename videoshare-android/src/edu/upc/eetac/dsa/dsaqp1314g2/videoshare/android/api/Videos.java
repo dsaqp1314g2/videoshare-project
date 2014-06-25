@@ -17,9 +17,15 @@ public class Videos {
 	private String filename;
 	private String categoria;
 	private String review;
+	private String puntuacion;
 	
 	
-	
+	public String getPuntuacion() {
+		return puntuacion;
+	}
+	public void setPuntuacion(String puntuacion) {
+		this.puntuacion = puntuacion;
+	}
 	public String getReview() {
 		return review;
 	}

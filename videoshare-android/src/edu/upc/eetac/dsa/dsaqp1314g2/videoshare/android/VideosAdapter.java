@@ -84,10 +84,10 @@ public class VideosAdapter extends BaseAdapter {
 			viewHolder = (ViewHolder) convertView.getTag();
 		}
 		String subject = data.get(position).getNombre_video();// recuperando
-																// valores de
+		String puntuacio = data.get(position).getPuntuacion();													// valores de
 		//String view = data.get(position).get														// esa posicion
 		String username = data.get(position).getUsername();
-
+		
 		// EN esta linea hay algo raro
 		// String date = SimpleDateFormat.getInstance().format(data);
 		viewHolder.tvTitulo.setTextColor(Color.BLACK);
@@ -98,6 +98,10 @@ public class VideosAdapter extends BaseAdapter {
 		viewHolder.tvUsername.setTextColor(Color.WHITE);
 		viewHolder.tvUsername.setTypeface(null, Typeface.ITALIC);
 		viewHolder.tvUsername.setTextSize(19);
+		viewHolder.tvView.setText(puntuacio);
+		viewHolder.tvView.setTextSize(25);
+		viewHolder.tvView.setTextColor(Color.BLACK);
+		viewHolder.tvView.setTypeface(null, Typeface.BOLD_ITALIC);
 		// viewHolder.tvDate.setText(date);
 		return convertView;
 	}

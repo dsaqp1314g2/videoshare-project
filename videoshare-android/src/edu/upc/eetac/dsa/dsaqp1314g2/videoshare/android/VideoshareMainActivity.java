@@ -45,6 +45,8 @@ public class VideoshareMainActivity extends ListActivity {
 			}
 			return videos;
 		}
+		
+		
 
 		@Override
 		protected void onPostExecute(VideosCollection result) {
@@ -113,21 +115,151 @@ public class VideoshareMainActivity extends ListActivity {
 			return true;
 		}
 
-	/*	@Override
+		@Override
 		public boolean onOptionsItemSelected(MenuItem item) {
 			switch (item.getItemId()) {
 			case R.id.miWrite:
-				Intent intent = new Intent(this, WriteStingActivity.class);
-				startActivity(intent);
+			//	Intent intent = new Intent(this, WriteStingActivity.class);
+			//	startActivity(intent);
+				videoList = new ArrayList<Videos>();
+				adapter = new VideosAdapter(this, videoList);
+				setListAdapter(adapter);
+				
+				(new FetchStingsTask2()).execute();
+				
 				return true;
-
+			case R.id.miWrite2:
+				videoList = new ArrayList<Videos>();
+				adapter = new VideosAdapter(this, videoList);
+				setListAdapter(adapter);
+				
+				(new FetchStingsTask3()).execute();
+				
+				return true;
+			case R.id.miWrite3:
+				
+				videoList = new ArrayList<Videos>();
+				adapter = new VideosAdapter(this, videoList);
+				setListAdapter(adapter);
+				
+				(new FetchStingsTask4()).execute();
+				
+				return true;
 			default:
 				return super.onOptionsItemSelected(item);
 			}
 
-		} */
+		} 
 
+		private class FetchStingsTask2 extends AsyncTask<Void, Void, VideosCollection> {
+
+			private ProgressDialog pd;
+
+			@Override
+			protected VideosCollection doInBackground(Void... params) {
+				VideosCollection videos = null;
+				try {
+					videos = VideoshareAPI.getInstance(VideoshareMainActivity.this)
+							.getCollectionVideosByCategoria();
+				} catch (VideoshareAndroidException e) {
+					e.printStackTrace();
+				}
+				return videos;
+			}
+			
+			
+
+			@Override
+			protected void onPostExecute(VideosCollection result) {
+				addVideo(result);
+				if (pd != null) {
+					pd.dismiss();
+				}
+			}
+
+			@Override
+			protected void onPreExecute() {
+				pd = new ProgressDialog(VideoshareMainActivity.this);
+				pd.setTitle("Buscando el servidor...");
+				pd.setCancelable(false);
+				pd.setIndeterminate(true);
+				pd.show();
+			}
+
+		}		
 		
+		private class FetchStingsTask3 extends AsyncTask<Void, Void, VideosCollection> {
+
+			private ProgressDialog pd;
+
+			@Override
+			protected VideosCollection doInBackground(Void... params) {
+				VideosCollection videos = null;
+				try {
+					videos = VideoshareAPI.getInstance(VideoshareMainActivity.this)
+							.getCollectionVideosByPuntuacion();
+				} catch (VideoshareAndroidException e) {
+					e.printStackTrace();
+				}
+				return videos;
+			}
+			
+			
+
+			@Override
+			protected void onPostExecute(VideosCollection result) {
+				addVideo(result);
+				if (pd != null) {
+					pd.dismiss();
+				}
+			}
+
+			@Override
+			protected void onPreExecute() {
+				pd = new ProgressDialog(VideoshareMainActivity.this);
+				pd.setTitle("Buscando el servidor...");
+				pd.setCancelable(false);
+				pd.setIndeterminate(true);
+				pd.show();
+			}
+
+		}		
+		private class FetchStingsTask4 extends AsyncTask<Void, Void, VideosCollection> {
+
+			private ProgressDialog pd;
+
+			@Override
+			protected VideosCollection doInBackground(Void... params) {
+				VideosCollection videos = null;
+				try {
+					videos = VideoshareAPI.getInstance(VideoshareMainActivity.this)
+							.getCollectionVideosByUsers();
+				} catch (VideoshareAndroidException e) {
+					e.printStackTrace();
+				}
+				return videos;
+			}
+			
+			
+
+			@Override
+			protected void onPostExecute(VideosCollection result) {
+				addVideo(result);
+				if (pd != null) {
+					pd.dismiss();
+				}
+			}
+
+			@Override
+			protected void onPreExecute() {
+				pd = new ProgressDialog(VideoshareMainActivity.this);
+				pd.setTitle("Buscando el servidor...");
+				pd.setCancelable(false);
+				pd.setIndeterminate(true);
+				pd.show();
+			}
+
+		}		
 		
 /*	
 _____________________________________________________________________________	

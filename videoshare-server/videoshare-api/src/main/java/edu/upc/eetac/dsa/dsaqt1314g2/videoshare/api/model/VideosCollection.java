@@ -42,4 +42,20 @@ public class VideosCollection {
 	public void addVideos(Videos videos) {
 		video.add(videos);
 	}
+	 
+	 
+	 public void ordenar() {
+	        for(int k=0;k < video.size()-1; k++){
+	        	Videos aux = null;
+	        	
+	        	if(video.get(k).getPuntuacion() < video.get(k+1).getPuntuacion()){
+	        		aux = video.get(k);
+	        		
+	        		
+	        		video.set(k, video.get(k+1));
+	        		video.set(k, aux);
+	        		
+	        	}
+	        }
+	    }
 }

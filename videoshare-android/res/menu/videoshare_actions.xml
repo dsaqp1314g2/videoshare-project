@@ -4,7 +4,17 @@
     <item
         android:id="@+id/miWrite"
         android:icon="@android:drawable/ic_menu_edit"
-        android:title="aaaa">
+        android:title="Ordenar por categoria">
+    </item>
+     <item
+        android:id="@+id/miWrite2"
+        android:icon="@android:drawable/ic_menu_edit"
+        android:title="Ordenar por puntuacion">
+    </item>
+     <item
+        android:id="@+id/miWrite3"
+        android:icon="@android:drawable/ic_menu_edit"
+        android:title="Ordenar por Usuario">
     </item>
  
 </menu>

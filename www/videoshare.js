@@ -7,6 +7,19 @@ var userpass = getCookie("userpass");
 
 var loginlogout; 
 
+function addUsername()
+{
+	 
+	if(getCookie('username')=="") //no se ha hecho loggin:
+	{
+		document.getElementById('username_login').innerHTML = "<FONT FACE=\"impact\" SIZE=6 COLOR=\"black\">¡Inicia Sesión! </FONT>";
+	}
+	else{
+		document.getElementById('username_login').innerHTML = "<FONT FACE=\"impact\" SIZE=6 COLOR=\"black\">"+getCookie('username')+" </FONT>";
+	}
+		
+}
+
 $("#button_getvideos").click(function(e) {
 	e.preventDefault();
 	getVideos();
@@ -42,6 +55,7 @@ $("#button_logout").click(function(e) {
 		window.location = "Videoshare.html";
 	}
 });
+
 // * * * * *  Botones de categorias * * * * * * * 
 $("#button_cienciaficcion").click(function(e) {
 	e.preventDefault();
@@ -93,7 +107,13 @@ $("#button_terror").click(function(e) {
 });
 // * * * * *  Hasta aquí Botones de categorias * * * * * * * 
 
-// * * * * *  Registrarse/Login/shareit * * * * * * * 
+// * * * * *  Registrarse/Login/shareit/searchit * * * * * * * 
+$("#button_search").click(function(e) {
+    e.preventDefault();
+                        
+   var titulo_search = $("#search_input").val();                 
+   searchIt(titulo_search);
+});
 $("#button_registrarse").click(function(e) {
     e.preventDefault();
                          
@@ -101,70 +121,47 @@ $("#button_registrarse").click(function(e) {
     newSignin.username = $("#username").val();
     newSignin.userpass = $("#password").val();
 	newSignin.name = $("#name").val();
-   // newSignin.password2 = $("#password2").val()
-    newSignin.email = $("#mail").val();
-   // newSignin.mail2 = $("#mail2").val()
-    
-    //comprobarPassword(newSignin.password, newSignin.password2);
-    //comprobarMail(newSignin.mail, newSignin.mail2);
-                               
-    Signin(newSignin);
-});
-$('form#videoForm').submit(
-		function(e) {
-			e.preventDefault();
-			$('progress').toggle();
-
-			var formData = new FormData($('form#videoForm')[0] );
-			var URL = API_BASE_URL + "/upload/" + getCookie('username');
-			$.ajax(
-					{
-						url : URL,
-						type : 'POST',
-						xhr : function() {
-							var myXhr = $.ajaxSettings.xhr();
-							if (myXhr.upload) {
-								myXhr.upload.addEventListener('progress',
-										progressHandlingFunction, false); // upload
-							}
-							return myXhr;
-						},
-						crossDomain : true,
-						data : formData,
-						cache : false,
-						// mimeType:"multipart/form-data",
-						contentType : false,
-						processData : false
-
-					}).done(function(data, status, jqxhr) {
-				var response = $.parseJSON(jqxhr.responseText);
-				lastFilename = response.filename;
-				$('#sharevideo').attr('src', response.videoURL);
-				$('progress').toggle();
-				$('form')[0].reset();
-				window.location = "Videoshare.html";
-			}).fail(function(jqXHR, textStatus) {
-				alert("KO");
-				console.log(textStatus);
-			});
-		});
-
-function progressHandlingFunction(e) {
-	if (e.lengthComputable) {
-		$('progress').attr({
-			value : e.loaded,
-			max : e.total
-		});
+	newSignin.email = $("#mail").val();
+	valor = document.getElementById("mail").value;
+	if (document.getElementById("mail").value.indexOf('@') == -1) 
+	{
+		alert('Introduzca un email válido, prueba a añadir \'@\'');
+		return false;	 
 	}
-}
+	else if (document.getElementById("mail").value.indexOf('.') == -1) 
+	{
+		alert('Introduzca un email válido, prueba a añadir \'.\'');
+		return false;
+	}
+	
+	Signup(newSignin);
+	                        
+    
+});
+
 $("#button_updateit").click(function(e) {
     e.preventDefault();
-                         
-    var newUpdateVideo = new Object();
-    newUpdateVideo.username = $("#username").val()
-    newUpdateVideo.nombre_video = $("#nombre_video").val()
-    newUpdateVideo.categoria = $("#categoria_video").val()
+	//$("#videos_result").text(' ');
+	$("#videosreviews_result").text(' ');
+	document.getElementById("newReviewForm").style.visibility="hidden";
+    document.getElementById("formeditar").style.visibility="visible";   
+
+	if(getCookie('username')=="") //no se ha hecho loggin:
+	{
+		$('<div class="alert alert-danger"> <strong>¡Error!</strong> Antes debes iniciar sesión </div>').appendTo($("#videosreviews_result"));
+	}
+	else
+	{
+		var newUpdateVideo = new Object();
+		newUpdateVideo.username = getCookie('username');
+		newUpdateVideo.nombre_video = $("#nombre_video").val()
+		newUpdateVideo.categoria = $("#categoria_video").val()
+		newUpdateVideo.videoid=videoid_now;
     
+		updateVideo(newUpdateVideo.videoid);
+	}					 
+   	
+   
   
     updateVideo(newUpdateVideo, videoid_now);
 });
@@ -182,13 +179,21 @@ $("#button_video").click(function(e) {
 $("#button_postreview").click(function(e) {
     e.preventDefault();
                          
-    var newReview = new Object();
-    newReview.username = getCookie('username');
-	newReview.reviewtext= $("#textA").val();
-	newReview.videoid=videoid_now;
-	newReview.fecha = "17-7-2014";
-  
-    postReview(newReview, newReview.videoid);
+	if(getCookie('username')=="") //no se ha hecho loggin:
+	{
+		$('<div class="alert alert-danger"> <strong>¡Error!</strong> Antes debes iniciar sesión </div>').appendTo($("#videosreviews_result"));
+	}
+	else
+	{
+		var newReview = new Object();
+		newReview.username = getCookie('username');
+		newReview.reviewtext= $("#textA").val();
+		newReview.videoid=videoid_now;
+		newReview.fecha = "17-7-2014";
+	  
+		postReview(newReview, newReview.videoid);
+	}					 
+   
 	
 });
 // * * * * *  hasta aquí * * * * * * * 
@@ -222,7 +227,7 @@ $("#button_username").click(function(e) {
 	 getVideosByX(ordenarpor);
 });
 
-// * * * * * Hasta aquñi botones de ordenar por --- * * * * * * * 
+// * * * * * Hasta aquí botones de ordenar por --- * * * * * * * 
 
 // métodos:
 function getVideos(){
@@ -242,6 +247,17 @@ function getVideos(){
                    var video = v;
 				    //$('#newReviewForm').appendTo($('#videos_result'));
 					document.getElementById("newReviewForm").style.visibility="hidden";
+					document.getElementById("formeditar").style.visibility="hidden";
+					
+					if(getCookie('username')=="") //no se ha hecho loggin:
+					{
+						document.getElementById('username_login').innerHTML = "<FONT FACE=\"impact\" SIZE=6 COLOR=\"black\"> ¡Inicia Sesión!</FONT>";
+					}
+					else	
+					{
+						document.getElementById('username_login').innerHTML = "<FONT FACE=\"impact\" SIZE=6 COLOR=\"black\">"+getCookie('username')+" </FONT>";
+					}					
+					
 				   $('<form class="form-horizontal" style="background-color:#F0EEEA" role="form">').appendTo($('#videos_result'));
 				   $('<div class="form-group" style="background-color:#F0EEEA">').appendTo($('#videos_result'));
                    $('<h4><b> Título del Vídeo: ' + video.nombre_video+ '</b></h4>').appendTo($('#videos_result'));
@@ -255,7 +271,16 @@ function getVideos(){
                    var categoria = video.categorias[0];
 
                    $('<strong> Categoria: </strong> ' + categoria.categoria + '<br>').appendTo($('#videos_result'));
+                   
+                   
+                   
+                   var puntuacion = video.puntuacion;
+				  
+                   $('<strong> Puntuacion: </strong> ' + puntuacion + '<br>').appendTo($('#videos_result'));
+                   
                    $('<button type="button" class="btn success" id="button_video" style="color:white;background-color:#3E3E3E;width:90px; height:4" onClick="getVideoById('+video.videoid+')">Video ' + video.videoid + '</button>').appendTo($('#videos_result'));
+				   
+                   
 				   
 				   $('</div>').appendTo($('#videos_result'));
 				   $('</form>').appendTo($('#videos_result'));
@@ -274,6 +299,7 @@ function getVideoById(videoid)
 {
 	var url = "http://localhost:8080/videoshare-api/videoshare/"+videoid;
 	$("#videos_result").text(' ');
+	$("#videosreviews_result").text(' ');
 	videoid_now = videoid;
 	$.ajax({
            url : url,
@@ -282,14 +308,14 @@ function getVideoById(videoid)
            
     }).done(function(data, status, jqxhr) {
         var videos = data;
-           
-				
+        if(videos.nombre_video!=null)
+		{		
 					$('<center><div class ="col-sm-12" style="padding: 10px 10px 11px 0px;" ><h3><b>' + videos.nombre_video+ '</b></h3></div></center>').appendTo($('#videos_result'));
 							 //añadimos para reproducir el vídeo en html el siguiente código:
 				    $(' <div class="col-sm-12"><video id ="demo" src="'+ videos.url+'" type="video/webm" controls>Tu navegador no implementa el elemento <code>video</code>.<div><button onclick="document.getElementById(\'demo\').play()">Reproducir el Audio</button><button onclick="document.getElementById(\'demo\').pause()">Pausar el Audio</button><button onclick="document.getElementById(\'demo\').volume+=0.1">Aumentar el Volumen</butto<button onclick="document.getElementById(\'demo\').volume-=0.1">Disminuir el Volumen</button></div></video></div>').appendTo($('#videos_result'));
                
 			   
-					$('<div class ="col-sm-12" style="padding: 10px 10px 15px 110px;" ><div class="btn-toolbar" role="toolbar"> <div class="btn-group"><div class=class ="col-sm-8"><div class="btn-group"><button type="button" style="color:white;background-color:#3E3E3E;width:110px; height:4" class="btn dropdown-toggle"data-toggle="dropdown"> Puntuación <span class="caret"></span></button><ul class="dropdown-menu"><li><a onClick="postPuntuacion('+videos.videoid+',1)">1</a></li><li><a onClick="postPuntuacion('+videos.videoid+',2)">2</a></li><li><a onClick="postPuntuacion('+videos.videoid+',3)">3</a></li><li><a onClick="postPuntuacion('+videos.videoid+',4)">4</a></li><li><a onClick="postPuntuacion('+videos.videoid+',5)">5</a></li><li><a onClick="postPuntuacion('+videos.videoid+',6)">6</a></li><li><a onClick="postPuntuacion('+videos.videoid+',7)">7</a></li><li><a onClick="postPuntuacion('+videos.videoid+',8)">8</a></li><li><a onClick="postPuntuacion('+videos.videoid+',9)">9</a></li><li><a onClick="postPuntuacion('+videos.videoid+',10)">10</a></li></ul></div><button type="button" class="btn success" id="button_updatevideo" style="color:white;background-color:#3E3E3E;width:90px; height:4" onClick="location.href=\'EditarVideo.html\'"> Editar </button><button type="button" class="btn success" id="button_postreview" style="color:white;background-color:#CB2626;width:90px; height:4"onClick="deleteVideo('+videos.videoid+')"> Eliminar </button></div></div></div></div>').appendTo($('#videos_result'));
+					$('<div class ="col-sm-12" style="padding: 10px 10px 15px 110px;" ><div class="btn-toolbar" role="toolbar"> <div class="btn-group"><div class=class ="col-sm-8"><div class="btn-group"><button type="button" style="color:white;background-color:#3E3E3E;width:110px; height:4" class="btn dropdown-toggle"data-toggle="dropdown"> Puntuación <span class="caret"></span></button><ul class="dropdown-menu"><li><a onClick="postPuntuacion('+videos.videoid+',1)">1</a></li><li><a onClick="postPuntuacion('+videos.videoid+',2)">2</a></li><li><a onClick="postPuntuacion('+videos.videoid+',3)">3</a></li><li><a onClick="postPuntuacion('+videos.videoid+',4)">4</a></li><li><a onClick="postPuntuacion('+videos.videoid+',5)">5</a></li><li><a onClick="postPuntuacion('+videos.videoid+',6)">6</a></li><li><a onClick="postPuntuacion('+videos.videoid+',7)">7</a></li><li><a onClick="postPuntuacion('+videos.videoid+',8)">8</a></li><li><a onClick="postPuntuacion('+videos.videoid+',9)">9</a></li><li><a onClick="postPuntuacion('+videos.videoid+',10)">10</a></li></ul></div><button type="button" class="btn success" id="button_updatevideo" style="color:white;background-color:#3E3E3E;width:90px; height:4" onclick="loadEdiatVideo()"> Editar </button><button type="button" class="btn success" id="button_postreview" style="color:white;background-color:#CB2626;width:90px; height:4"onClick="deleteVideo('+videos.videoid+')"> Eliminar </button></div></div></div></div>').appendTo($('#videos_result'));
 					
 					
 					$('<h5><strong>Username: ' + videos.username + '</strong></h5>').appendTo($('#videos_result'));
@@ -311,6 +337,7 @@ function getVideoById(videoid)
 					}
 					
 					$('<center><legend> Comentarios </legend></center><br></div>').appendTo($('#videosreviews_result'));
+					document.getElementById("newReviewForm").style.visibility="visible";
 				   var reviews = videos.reviews[0];
 				   if (reviews == null)
 				   {
@@ -325,7 +352,12 @@ function getVideoById(videoid)
 						   $('<div class ="col-sm-12" style="padding: 3px 10px 1px 10px;" ><h5> <strong> ' + rev.username + '</strong></h5><h5> '+ rev.reviewtext + '</h5><legend></legend></div>').appendTo($('#videosreviews_result'));
 					   
 					   });
-				   }	
+				   }
+		}
+		else
+		{
+			$('<div class="alert alert-danger"> <strong>Oh!</strong> No se ha podido cargar el Videos. </div>').appendTo($("#videos_result"));
+		}
 				   	  
     }).fail(function() {
 		$("#videos_result").text("No caargaaaaaaaa");
@@ -345,11 +377,24 @@ function getVideosByX(ordenarpor)
            dataType : 'json',
            crossDomain : true,
            
-    }).done(function(data, status, jqxhr) {
+	}).done(function(data, status, jqxhr) {
         var videos = data;
         
             $.each(videos.video, function(i, v){
                    var video = v;
+				    //$('#newReviewForm').appendTo($('#videos_result'));
+					document.getElementById("newReviewForm").style.visibility="hidden";
+					document.getElementById("formeditar").style.visibility="hidden";
+					
+					if(getCookie('username')=="") //no se ha hecho loggin:
+					{
+						document.getElementById('username_login').innerHTML = "<FONT FACE=\"impact\" SIZE=6 COLOR=\"black\"> ¡Inicia Sesión!</FONT>";
+					}
+					else	
+					{
+						document.getElementById('username_login').innerHTML = "<FONT FACE=\"impact\" SIZE=6 COLOR=\"black\">"+getCookie('username')+" </FONT>";
+					}					
+					
 				   $('<form class="form-horizontal" style="background-color:#F0EEEA" role="form">').appendTo($('#videos_result'));
 				   $('<div class="form-group" style="background-color:#F0EEEA">').appendTo($('#videos_result'));
                    $('<h4><b> Título del Vídeo: ' + video.nombre_video+ '</b></h4>').appendTo($('#videos_result'));
@@ -363,12 +408,20 @@ function getVideosByX(ordenarpor)
                    var categoria = video.categorias[0];
 
                    $('<strong> Categoria: </strong> ' + categoria.categoria + '<br>').appendTo($('#videos_result'));
+                   
+                   
+                   
+                   var puntuacion = video.puntuacion;
+				  
+                   $('<strong> Puntuacion: </strong> ' + puntuacion + '<br>').appendTo($('#videos_result'));
+                   
                    $('<button type="button" class="btn success" id="button_video" style="color:white;background-color:#3E3E3E;width:90px; height:4" onClick="getVideoById('+video.videoid+')">Video ' + video.videoid + '</button>').appendTo($('#videos_result'));
+				   
+                   
 				   
 				   $('</div>').appendTo($('#videos_result'));
 				   $('</form>').appendTo($('#videos_result'));
-				   
-				    $('<div class ="col-sm-12" style="padding: 3px 10px 1px 10px;" ><center><legend></legend></center><br></div></div>').appendTo($('#videos_result'));
+				   $('<div class ="col-sm-12" style="padding: 3px 10px 1px 10px;" ><center><legend></legend></center><br></div></div>').appendTo($('#videos_result'));
 				   
             });
             
@@ -390,31 +443,56 @@ function buscarPorCategoria(categoria)
            type : 'GET',
            crossDomain : true,
            
-    }).done(function(data, status, jqxhr) {
+	}).done(function(data, status, jqxhr) {
         var videos = data;
-            $.each(videos, function(i, v){
-                   var video = v[0];
-				   //console.log(video[0]);
+        
+            $.each(videos.video, function(i, v){
+                   var video = v;
+				    //$('#newReviewForm').appendTo($('#videos_result'));
+					document.getElementById("newReviewForm").style.visibility="hidden";
+					document.getElementById("formeditar").style.visibility="hidden";
+					
+					if(getCookie('username')=="") //no se ha hecho loggin:
+					{
+						document.getElementById('username_login').innerHTML = "<FONT FACE=\"impact\" SIZE=6 COLOR=\"black\"> ¡Inicia Sesión!</FONT>";
+					}
+					else	
+					{
+						document.getElementById('username_login').innerHTML = "<FONT FACE=\"impact\" SIZE=6 COLOR=\"black\">"+getCookie('username')+" </FONT>";
+					}					
+					
+				   $('<form class="form-horizontal" style="background-color:#F0EEEA" role="form">').appendTo($('#videos_result'));
+				   $('<div class="form-group" style="background-color:#F0EEEA">').appendTo($('#videos_result'));
                    $('<h4><b> Título del Vídeo: ' + video.nombre_video+ '</b></h4>').appendTo($('#videos_result'));
                    $('<h5> Username: ' + video.username + '</h5>').appendTo($('#videos_result'));
                    $('<h5> Fecha: ' + video.fecha+ '</h5>').appendTo($('#videos_result'));
-                    //añadimos para reproducir el vídeo en html el siguiente código:
-				    $(' <div class="col-sm-12"><video id ="demo" src="'+ video.url+'" type="video/webm" controls>Tu navegador no implementa el elemento <code>video</code>.<div><button onclick="document.getElementById(\'demo\').play()">Reproducir el Audio</button><button onclick="document.getElementById(\'demo\').pause()">Pausar el Audio</button><button onclick="document.getElementById(\'demo\').volume+=0.1">Aumentar el Volumen</butto<button onclick="document.getElementById(\'demo\').volume-=0.1">Disminuir el Volumen</button></div></video></div>').appendTo($('#videos_result'));
+				   $('<h5> URL: ' + video.url+ '</h5>').appendTo($('#videos_result'));
+				   
+				    //añadimos para reproducir el vídeo en html el siguiente código:
+				    $(' <div class="col-sm-12"><video id ="demo' + video.videoid +'" src="'+ video.url+'" type="video/webm" controls>Tu navegador no implementa el elemento <code>video</code>.<div><button onclick="document.getElementById(\'demo ' + video.videoid +'\').play()">Reproducir el Audio</button><button onclick="document.getElementById(\'demo ' + video.videoid +'\').pause()">Pausar el Audio</button><button onclick="document.getElementById(\'demo ' + video.videoid +'\').volume+=0.1">Aumentar el Volumen</butto<button onclick="document.getElementById(\'demo ' + video.videoid +'\').volume-=0.1">Disminuir el Volumen</button></div></video></div>').appendTo($('#videos_result'));
                
                    var categoria = video.categorias[0];
+
                    $('<strong> Categoria: </strong> ' + categoria.categoria + '<br>').appendTo($('#videos_result'));
                    
-                   var puntuacion = video.puntuaciones[0];
-                   $('<strong> Puntuacion: </strong> ' + puntuacion.puntuacion + '<br>').appendTo($('#videos_result'));
+                   
+                   
+                   var puntuacion = video.puntuacion;
+				  
+                   $('<strong> Puntuacion: </strong> ' + puntuacion + '<br>').appendTo($('#videos_result'));
+                   
                    $('<button type="button" class="btn success" id="button_video" style="color:white;background-color:#3E3E3E;width:90px; height:4" onClick="getVideoById('+video.videoid+')">Video ' + video.videoid + '</button>').appendTo($('#videos_result'));
+				   
+                   
+				   
+				   $('</div>').appendTo($('#videos_result'));
+				   $('</form>').appendTo($('#videos_result'));
 				   $('<div class ="col-sm-12" style="padding: 3px 10px 1px 10px;" ><center><legend></legend></center><br></div></div>').appendTo($('#videos_result'));
 				   
             });
-                        
-            
+		
     }).fail(function() {
-		$("#videos_result").text("No caargaaaaaaaa");
-		$('<div class="alert alert-danger"> <strong>Oh!</strong> No se ha podido cargar la lista de Videos. </div>').appendTo($("#videos_result"));
+		$('<div class="alert alert-danger"> <strong>Oh!</strong> Error con el servidor. </div>').appendTo($("#videos_result"));
     });
 }
 
@@ -441,10 +519,13 @@ function Login(newLogin) {
 			
 				setCookie('username', username, 1 );
 				var usernamec = getCookie('username');
-				login = "1"; 	
+				
+				document.getElementById('username_login').innerHTML = "<FONT FACE=\"impact\" SIZE=6 COLOR=\"black\">"+getCookie('username')+" </FONT>";
+				//redirigimos la página principal:
 				window.location = "Videoshare.html";
+				
             }).fail(function() {
-                    $('<div class="alert alert-danger"> <strong>Oh!</strong> Error </div>').appendTo($("#loginform"));
+                    $('<div class="alert alert-danger"> <strong>Oh!</strong> Error. Comprueba que el usuario y la contraseña sean correctos.</div>').appendTo($("#loginform"));
             });
 
 }
@@ -464,37 +545,13 @@ function getCookie(cname) {
 	}
 	return "";
 }
-/*
-function comprobarPassword(pass1, pass2)
-{
-    if (pass1 == pass2)
-    {
-        $('<div class="alert alert-success"> <strong>Ok!</strong> Las constraseñas son iguales </div>').appendTo($("#login_result"));;;
-    }
-    else
-    {
-        $('<div class="alert alert-danger"> <strong>Oh!</strong>Las contraseñas no son iguales</div>').appendTo($("#signin_result"));
-    }
 
-}
-
-function comprobarMail(mail1, mail2)
-{
-    if (mail1 == mail2)
-    {
-        $('<div class="alert alert-success"> <strong>OK!</strong>Las direcciones de correo son iguales. </div>').appendTo($("#signin_result"));;;
-    }
-    else
-    {
-        $('<div class="alert alert-danger"> <strong>Oh!</strong>Las direcciones de correo no son iguales. </div>').appendTo($("#signin_result"));
-    }
-}*/
 function Logout()
 {
 	//eliminamos la cookie
 	document.cookie = 'username=;expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-	loginlogout= "0"; 	
-	
+	document.getElementById('username_login').innerHTML = "<FONT FACE=\"impact\" SIZE=6 COLOR=\"black\"> ¡Inicia Sesión!</FONT>";
+					
 }
 
 function deleteVideo(videoid)
@@ -502,29 +559,31 @@ function deleteVideo(videoid)
 	var url = API_BASE_URL+"/"+videoid; 
 	$("#videos_result").text(' ');
     
-
-
+	var username_to_delete = getCookie('username');
+	var data = JSON.stringify(username_to_delete);
 		//mandamos a la API la user+password y comprobamos que sea correcto
 		$.ajax({
 			url : url,
-           type : 'DELETE',
-           dataType : 'json',
-           crossDomain : true,
+			type : 'DELETE',
+			crossDomain : true,
+			dataType : 'json',
+			data : data,
+			cache : false,
+			contentType : "application/vnd.videoshare.api.user+json; charset=UTF-8 ",
+			processData : false
            
            }).done(function(data, status, jqxhr) {
-					$("#videos_result").text(' ');
-					//window.onload = getVideos();
-                   $('<div class="alert alert-success"> <strong>Wellcome to Videoshare! </strong> You were signed in.</div>').appendTo($("#videos_result"));
+				window.location = "Videoshare.html";	
             }).fail(function() {
-                    $('<div class="alert alert-danger"> <strong>Oh!</strong> Error </div>').appendTo($("#videos_result"));
+                window.location = "Videoshare.html";   
             });
 
 }
 
-function Signin(newSignin) {
+function Signup(newSignup) {
 	var url = API_BASE_URL+"/users"; //falta añadir la URL para comprobar el usuario
 	$("#videos_result").text(' ');
-    var data = JSON.stringify(newSignin);
+    var data = JSON.stringify(newSignup);
 
 
 		//mandamos a la API la user+password y comprobamos que sea correcto
@@ -598,13 +657,11 @@ var url = API_BASE_URL +"/"+videoid+ "/puntuacion"; //falta añadir la URL para 
            
            }).done(function(data, status, jqxhr) {
                    $('<div class="alert alert-success"> <strong>Puntuación añadida</strong>.</div>').appendTo($("#videos_result"));
-				   getVideoById(videoid)
+				   getVideoById(videoid);
             }).fail(function() {
                     $('<div class="alert alert-danger"> <strong>Oh!</strong> Error </div>').appendTo($("#videos_result"));
             });
 }
-	  
-
 
 function progressHandlingFunction(e) {
 	if (e.lengthComputable) {
@@ -615,63 +672,138 @@ function progressHandlingFunction(e) {
 	}
 }
 
-function updateVideo(newVideo, videoid) {
+function updateVideo(videoid) {
 	
-	var url = API_BASE_URL + "/"+ videoid;
-	$("#videos_result").text(' ');
-    var data = JSON.stringify(newVideo);
+		var url = API_BASE_URL + "/"+ videoid;
 	
-	$.ajax({
-           url : url,
-           type : 'PUT',
-           crossDomain : true,
-           dataType : 'json',
-           data: data,
-           
-           }).done(function(data, status, jqxhr) {
-                   $('<div class="alert alert-success"> <strong> El video se ha subido correctamente </strong></div>').appendTo($("#videos_result"));
-            }).fail(function() {
-                    $('<div class="alert alert-danger"> <strong>Oh!</strong> Error </div>').appendTo($("#videos_result"));
-            });
+		var newUpdateVideo = new Object();
+		newUpdateVideo.username = getCookie('username');
+		newUpdateVideo.nombre_video = $("#nombre_video").val()
+		newUpdateVideo.categoria = $("#categoria_video").val()
+		newUpdateVideo.videoid=videoid_now;
+    
+	
+		var data = JSON.stringify(newUpdateVideo);
+		
+		$.ajax({
+			   url : url,
+				type : 'PUT',
+				crossDomain : true,
+				dataType : 'json',
+				data : data,
+				cache : false,
+				contentType : "application/vnd.videoshare.api.videos+json; charset=UTF-8 ",
+				processData : false
+			   
+			   }).done(function(data, status, jqxhr) {
+					window.location = "Videoshare.html";	
+				}).fail(function() {
+					window.location = "Videoshare.html";	
+				});
+			
+	
     
 
 }
 
+function searchIt(titulo)
+{
+ var url = "http://localhost:8080/videoshare-api/videoshare/search?titulo="+titulo;
+	$("#videos_result").text(' ');
+	
+	$.ajax({
+           url : url,
+           type : 'GET',
+           crossDomain : true,
+           
+    }).done(function(data, status, jqxhr) {
+        var videos = data;
+        
+		
+            $.each(videos.video, function(i, v){
+                var video = v;
+				
+					document.getElementById("newReviewForm").style.visibility="hidden";
+				   $('<form class="form-horizontal" style="background-color:#F0EEEA" role="form">').appendTo($('#videos_result'));
+				   $('<div class="form-group" style="background-color:#F0EEEA">').appendTo($('#videos_result'));
+                   $('<h4><b> Título del Vídeo: ' + video.nombre_video+ '</b></h4>').appendTo($('#videos_result'));
+                   $('<h5> Username: ' + video.username + '</h5>').appendTo($('#videos_result'));
+                   $('<h5> Fecha: ' + video.fecha+ '</h5>').appendTo($('#videos_result'));
+				   $('<h5> URL: ' + video.url+ '</h5>').appendTo($('#videos_result'));
+				   
+				    //añadimos para reproducir el vídeo en html el siguiente código:
+				    $(' <div class="col-sm-12"><video id ="demo' + video.videoid +'" src="'+ video.url+'" type="video/webm" controls>Tu navegador no implementa el elemento <code>video</code>.<div><button onclick="document.getElementById(\'demo ' + video.videoid +'\').play()">Reproducir el Audio</button><button onclick="document.getElementById(\'demo ' + video.videoid +'\').pause()">Pausar el Audio</button><button onclick="document.getElementById(\'demo ' + video.videoid +'\').volume+=0.1">Aumentar el Volumen</butto<button onclick="document.getElementById(\'demo ' + video.videoid +'\').volume-=0.1">Disminuir el Volumen</button></div></video></div>').appendTo($('#videos_result'));
+               
+                   var categoria = video.categorias[0];
 
+                   $('<strong> Categoria: </strong> ' + categoria.categoria + '<br>').appendTo($('#videos_result'));
+                   $('<button type="button" class="btn success" id="button_video" style="color:white;background-color:#3E3E3E;width:90px; height:4" onClick="getVideoById('+video.videoid+')">Video ' + video.videoid + '</button>').appendTo($('#videos_result'));
+				   
+				   $('</div>').appendTo($('#videos_result'));
+				   $('</form>').appendTo($('#videos_result'));
+				   $('<div class ="col-sm-12" style="padding: 3px 10px 1px 10px;" ><center><legend></legend></center><br></div></div>').appendTo($('#videos_result'));
+				
+			});
+    }).fail(function() {
+		$('<div class="alert alert-danger"> <strong></strong> No hay vídeos con ese título. </div>').appendTo($("#videos_result"));
+    });
+}
 
-//Cargar código html en videos_result
-
-function cargarNewReview()
+//editar video
+function loadEdiatVideo()
 {
 	$("#videos_result").text(' ');
-	html="";
-	
-	html +='<div class="col-sm-8">';
-    html +=' <div class="panel">';
-	html +='<div class="panel-body">';
-						
-	html +='<div class="form-group">';
-	html +='<legend>New Review</legend>';
-	html +='<label for="inputTitle">Añade comentario</label>';
-	html +='<center><strong> <form role="form"><textarea class="form-control" id="textA" rows="3"></textarea></form></center>';
-	html +='</div>';
-    html +='</div>';
-						
-	html +='<div class="panel-body">';
-	html +='<div style="float:right" >';
-	html +='<button type="button" class="btn success" id="button_cancelar" style="color:white;background-color:black;width:90px; height:4;" onClick="location.href=\'Videoshare.html\'"> Cancelar </button>';
-	html +='</div>';
-	html +='<div style="float:right" >';
-	html +='<button type="button" class="btn success" id="button_comentario" style="color:white;background-color:black;width:140px; height:4;"> Enviar Comentario </button>';
-	html +='</div>'
-	html +='</div>'
-    html +='<div class="panel-body">';
-    html +='<div class ="col-sm-8">';
-    html +='<span id="video_result"></span>';
-    html +='</div>';
-	html +='</div>';
-	html +='</div>';
-    html +='</div><!-- /.col-sm-8 -->';
-       
-	$("#videos_result").html(html);
+	$("#videosreviews_result").text(' ');
+	document.getElementById("newReviewForm").style.visibility="hidden";
+    document.getElementById("formeditar").style.visibility="visible";   
+}
+
+//subir video:
+
+$('form#videoForm').submit(
+		function(e) {
+			e.preventDefault();
+			$('progress').toggle();
+
+			var formData = new FormData($('form#videoForm')[0] );
+			var URL = API_BASE_URL + "/upload/" + getCookie('username');
+			$.ajax(
+					{
+						url : URL,
+						type : 'POST',
+						xhr : function() {
+							var myXhr = $.ajaxSettings.xhr();
+							if (myXhr.upload) {
+								myXhr.upload.addEventListener('progress',
+										progressHandlingFunction, false); // upload
+							}
+							return myXhr;
+						},
+						crossDomain : true,
+						data : formData,
+						cache : false,
+						// mimeType:"multipart/form-data",
+						contentType : false,
+						processData : false
+
+					}).done(function(data, status, jqxhr) {
+				var response = $.parseJSON(jqxhr.responseText);
+				lastFilename = response.filename;
+				$('#sharevideo').attr('src', response.videoURL);
+				$('progress').toggle();
+				$('form')[0].reset();
+				window.location = "Videoshare.html";
+			}).fail(function(jqXHR, textStatus) {
+				alert("KO");
+				console.log(textStatus);
+			});
+		});
+
+function progressHandlingFunction(e) {
+	if (e.lengthComputable) {
+		$('progress').attr({
+			value : e.loaded,
+			max : e.total
+		});
+	}
 }

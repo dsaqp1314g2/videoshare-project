@@ -10,13 +10,11 @@
                 
                 <!-- Optional theme -->
                 <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
-                <link href="stars.css" rel="stylesheet">
-   
-                   </head>
+                    
+                    </head>
     <body>
-	<!-- <body background color="f5f5f5" onload = "getVideos();"> -->
-	<body background ="fondo2.jpg" onload = "getVideos(); "> 
-            <!-- Logo + contenedor naranja superior -->
+	<body background ="fondo2.jpg"> 
+                <!-- Logo + contenedor naranja superior -->
        <div class="container theme-showcase" role="main" >
             <div style="background-color:#FDC556;" class="jumbotron">
 			<img src="Logo9.gif" class="" style="float:center"border="" width="300" height="70">  
@@ -24,7 +22,6 @@
 			<div class="input-group input-group-sm">
 			</div>
 		<!-- Fin Logo -->
-         
 <!-- Inicio barra de navegación -->
 
 	<nav class="navbar navbar-inverse" role="navigation" " >
@@ -46,7 +43,7 @@
 	  <ul class="nav navbar-nav">
 		<form class="navbar-form navbar-left" role="search" >
 		  <div class="form-group">
-			<input type="text" size="60" id ="search_input" class="form-control" placeholder="Buscar">
+			<input type="text" size="60" class="form-control" placeholder="Buscar">
 		  </div>
 		  <button type="button" class="btn default" id="button_search" style="color:white;background-color:orange;">Search it!</button>
 		</form>
@@ -62,13 +59,14 @@
 	</div>
 	<!-- </div>
 
+
 <!-- hasta aquí barra de navegación -->
+
 
 	</div>
 			
 			
 			<!-- esto ya es la barra lateral -->
-			
             <div class = "panel" id="lateral" style="float:left; width:250px; height:300px; background-color:#FCDB99;"position=abs>
                 <div class ="col-sm-8" id="contenidolateral" style="padding: 30px 30px 1000px 30px;" >
                     <div class="btn-group-vertical" style="float:center;width:180px; height:4">
@@ -80,88 +78,96 @@
 						<button type="button" class="btn success" id="button_sexo" style="color:white;background-color:#3E3E3E;"> Sexo </button>
 						<button type="button" class="btn success" id="button_terror" style="color:white;background-color:#3E3E3E;"> Terror </button>
 					</div>
-					
-					
 
 			</div>
 
    </div>
             
             <div class="row">
-                <div class ="col-sm-8">
-                    <div class="panel" style="float:center;width:100%; height:100%">
-                       <div class="panel-body">
-                            <div class ="col-sm-12" style="padding: 10px 10px 1px 30px;" >
-								<div class="btn-toolbar" role="toolbar">
-								  <div class="btn-group">
-									<button type="button" class="btn success" id="button_categoria" style="color:white;background-color:#3E3E3E;"> Ordenar por Categoría </button>
-									<button type="button" class="btn success" id="button_puntuacion" style="color:white;background-color:#3E3E3E;"> Ordenar por Puntuación </button>
-									<button type="button" class="btn success" id="button_fecha" style="color:white;background-color:#3E3E3E;"> Ordenar por Fecha </button>
-									<button type="button" class="btn success" id="button_username" style="color:white;background-color:#3E3E3E;"> Ordenar por Usuario </button>
-								  </div>
-								</div>     
+                <div class="col-sm-8">
+				 <div class="panel">
+                        <div class="panel-body">
+						
+							<div class="form-group">
+								<legend>New User</legend>
+								<label for="inputTitle">Username</label>
+								<input name="title" type="text" id="username" class="form-control" placeholder="Enter username" required="required">
 							</div>
+							<div class="form-group">	
+								<label for="inputFile">Real name</label>
+								<input name="title" type="text" id="name" class="form-control" placeholder="Enter real name" required="required">
+							</div>
+							<div class="form-group">	
+								<label for="inputFile">Password</label>
+								<input name="title" type="text" id="password" class="form-control" placeholder="Enter password" required="required">
+							</div>
+							<div class="form-group">	
+								<label for="inputFile">email</label>
+								<input name="title" type="text" id="mail" class="form-control" placeholder="Enter mail" required="required">
+							</div>
+							
+							
+							
+                        </div>
+                    <!--<div class="panel">
+                        
+                        <div class="panel-body">
+						 <div form = "signing">
+						
+							<div class ="col-sm-8">
+								<h4 class="text-center" style="float:left"> Nombre de Usuario </h2>
+							</div>
+							<div class ="col-sm-8">
+								<input type="text" size="100" id="username" >
+							</div>
+							
+							<div class ="col-sm-8">
+								<h4 class="text-center" style="float:left"> Nombre Real </h2>
+							</div>
+							<div class ="col-sm-8">
+								<input type="text" size="100" id="name" >
+							</div>
+							
+							<div class ="col-sm-8">
+								<h4 class="text-center" style="float:left" > Password </h2>
+							</div>
+							<div class ="col-sm-8">
+								<input type="text" size="100" id="password" >
+							</div>
+							
+							
+							<div class ="col-sm-8">
+								<h4 class="text-center" style="float:left" > Correo </h2>
+							</div>
+							<div class ="col-sm-8">
+								<input type="text" size="100" id="mail" >
+							</div>
+							</div>
+                        </div>-->
+						
+					<div class="panel-body">
+						 
+						<div style="float:right" >
+								<button type="button" class="btn success" id="button_cancelar" style="color:white;background-color:black;width:90px; height:4;" onClick="location.href='Videoshare.html'"> Cancelar </button>
 						</div>
-						
-						
-						<div class="panel-body" size="1500">
-								<div class ="col-sm-12" style="padding: 10px 1px 3000px 80px;" >
-									<span id="videos_result" output=" "></span>
-									
-									<!--añadimos form del Review, hidden-->
-									<form id="newReviewForm">
-									    <div class="col-sm-8">
-											<div class="panel">
-												<div class="panel-body">
-						
-													<div class="form-group">
-														<label for="inputTitle">Añade comentario</label>
-														<center><strong> <form role="form"><textarea class="form-control" id="textA" rows="3"></textarea></form></center>
-													</div>
-												</div>
-												 <button type="button" class="btn success" id="button_postreview" style="color:white;background-color:#3E3E3E;width:140px; height:4"> Añadir Comentario </button>
-											</div>
-										</div><!-- /.col-sm-8 -->
-										<span id="videosreviews_result" output=" "></span>
-									</form>
-									<form id="formeditar">
-										<div class="col-sm-8">
-											<div class="panel">
-												<div class="panel-body">
-													<div class="form-group">
-														<legend>Edit Video</legend>
-														<label for="inputTitle">Title</label>
-														<input name="title" type="text" id="nombre_video" class="form-control" placeholder="Enter title" required="required">
-													</div>
-													<div class="form-group">	
-														<label for="inputFile">Categoría</label>
-														<input name="title" type="text" id="categoria_video" class="form-control" placeholder="Enter categoría" required="required">
-													</div>
-												</div>
-												<div class="panel-body">
-													<div style="float:right" >
-														<button type="button" class="btn success" id="button_cancelar" style="color:white;background-color:black;width:90px; height:4;" onClick="location.href='Videoshare.html'"> Cancelar </button>
-													</div>
-													<div style="float:right" >
-														<button type="button" class="btn success" id="button_updateit" style="color:white;background-color:black;width:90px; height:4;"> Update it! </button>
-													</div>
-												</div>
-												<div class="panel-body">
-													<div class ="col-sm-8">
-														<span id="videos_result" output=" "></span>
-													</div>
-												</div>
-											</div>
-										</div>
-									</form>	
-									
-								</div> 
-
+							
+						<div style="float:right" >
+							<button type="button" class="btn success" id="button_registrarse" style="color:white;background-color:black;width:90px; height:4;"> Registrarse </button>
 						</div>
+					</div>
+                    
+                    <div class="panel-body">
+                        <div class ="col-sm-8">
+                            <span id="videos_result"></span>
+                        </div>
+                    </div>
+                    
                     </div>
                 </div><!-- /.col-sm-8 -->
        
-            </div>            
+            </div>    
+
+				
             
         </div>
         
