@@ -359,10 +359,9 @@ public class VideoshareResource {
 	 */
 	@DELETE
 	@Path("/{videoid}/{username}")
-	
 	public void deleteVideo(@PathParam("videoid") String videoid,
 			@PathParam("username") String username) {
-		//String username = usuario.getUsername();
+		// String username = usuario.getUsername();
 		// ¡¡¡¡ falta añadir que el usuario que vaya a eliminar sea el que ha
 		// subido el video !!!!
 
@@ -526,9 +525,10 @@ public class VideoshareResource {
 
 	// (10) DELETE - eliminar un comentario con reviewid de un video que videoid
 	@DELETE
-	@Path("/{videoid}/reviews/{reviewid}")
+	@Path("/{videoid}/reviews/{reviewid}/{username}")
 	public void deleteReview(@PathParam("videoid") String videoid,
-			@PathParam("reviewid") String reviewid) {
+			@PathParam("reviewid") String reviewid,
+			@PathParam("username") String username) {
 
 		// nos aseguramos que el usuario esté registrado
 		/*
@@ -540,40 +540,49 @@ public class VideoshareResource {
 		// del video
 		// sea el que ha creado dicho comentario
 		// validateUser(reviewid);
-
-		Connection conn = null;
 		try {
-			conn = ds.getConnection();
-		} catch (SQLException e) {
-			throw new ServerErrorException("Could not connect to the database",
-					Response.Status.SERVICE_UNAVAILABLE);
-		}
-
-		PreparedStatement stmt = null;
-		try {
-			// llamamos a la función para la query y la hacemos la database
-			String sql = buildDeleteReview();
-			stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-
-			stmt.setString(1, reviewid);
-
-			int rows = stmt.executeUpdate();
-
-			if (rows == 0) {
-				throw new NotFoundException("There's no review with review="
-						+ reviewid + "with the video with videoid=" + videoid);
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
+			validateUser(username, reviewid);
+			// Todo OK. Continuamos:
+			Connection conn = null;
 			try {
-				if (stmt != null)
-					stmt.close();
-				conn.close();
+				conn = ds.getConnection();
 			} catch (SQLException e) {
-				throw new ServerErrorException(e.getMessage(),
-						Response.Status.INTERNAL_SERVER_ERROR);
+				throw new ServerErrorException(
+						"Could not connect to the database",
+						Response.Status.SERVICE_UNAVAILABLE);
 			}
+
+			PreparedStatement stmt = null;
+			try {
+				// llamamos a la función para la query y la hacemos la database
+				String sql = buildDeleteReview();
+				stmt = conn.prepareStatement(sql,
+						Statement.RETURN_GENERATED_KEYS);
+
+				stmt.setString(1, reviewid);
+
+				int rows = stmt.executeUpdate();
+
+				if (rows == 0) {
+					throw new NotFoundException(
+							"There's no review with review=" + reviewid
+									+ "with the video with videoid=" + videoid);
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} finally {
+				try {
+					if (stmt != null)
+						stmt.close();
+					conn.close();
+				} catch (SQLException e) {
+					throw new ServerErrorException(e.getMessage(),
+							Response.Status.INTERNAL_SERVER_ERROR);
+				}
+			}
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 	}
 
@@ -690,7 +699,7 @@ public class VideoshareResource {
 
 	// (6)PUT hacer una actualización de la ficha del libro:
 	private String buildUpdateVideo() {
-		return "update videos set nombre_video = ? where videoid = ?";
+		return "update videos set nombre_video = ? where videoid = ? ";
 	}
 
 	// (7) DELETE - eliminar un video a partir de videoid
@@ -719,7 +728,7 @@ public class VideoshareResource {
 		try {
 			String sql = buildQueryGetReviewByReviewid();
 			stmt = conn.prepareStatement(sql);
-			stmt.setString(1, reviewid);
+			stmt.setInt(1, Integer.parseInt(reviewid));
 
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
@@ -748,7 +757,7 @@ public class VideoshareResource {
 
 	// 8.2. Hacer query
 	private String buildQueryGetReviewByReviewid() {
-		return "select*from reviews where reviewid=?";
+		return "select*from review where reviewid=?";
 	}
 
 	private String getReviewsFromDatabaseByVideoid(String videoid) {
@@ -758,14 +767,18 @@ public class VideoshareResource {
 	// (9) Actulizar reseña
 	// 9.1. Validación del usuario (alicia sólo editar/eliminar reseña de
 	// Alicia)
-	private void validateUser(String reviewid) {
+	private void validateUser(String Username, String reviewid) {
 		// si el usuario que consulta la reseña no es el que la ha creado,
 		// ForbiddenException
 		Review currentReview = getReviewFromDatbase(reviewid);
-		if (!security.getUserPrincipal().getName()
-				.equals(currentReview.getUsername()))
+		if (Username.equals(currentReview.getUsername())) {
+			System.out
+					.println("El usuario que trata de modificar/eliminar y el que ha subido el vídeo es el mismo. Todo OK.");
+
+		} else {
 			throw new ForbiddenException(
-					"You are not allowed to modify/delete this review.");
+					"No tienes permiso para modificar o eliminar este comentario.");
+		}
 	}
 
 	private int validateUserPunt(String videoid, String usuario)
@@ -784,7 +797,7 @@ public class VideoshareResource {
 		stmt = conn.prepareStatement(sql);
 		stmt.setString(1, videoid);
 		stmt.setString(2, usuario);
-		ResultSet rs = stmt.getGeneratedKeys();
+		ResultSet rs = stmt.executeQuery();
 		if (rs.next()) {
 
 			return 0;
@@ -968,21 +981,27 @@ public class VideoshareResource {
 
 			// obtenemos los videoid de los videos que tienen asignada esa
 			// categoria
-			if(!rs.next()){
-				throw new ServerErrorException("No hay un video con ese nombre",
-						Response.Status.INTERNAL_SERVER_ERROR);
-			}
-			else{
-				
-			
-			while (rs.next()) {
-				Videos video = new Videos();
-				video.setVideoid(rs.getString("videoid"));
+			if (rs.next()) {
+				// Videos video = new Videos();
+				// video.setVideoid(rs.getString("videoid"));
 				System.out.println("AAAAAAAAAAAAAAAAA");
-				Videos video2 = getVideoFromDatabase(video.getVideoid());
+				Videos video2 = getVideoFromDatabase(rs.getString("videoid"));
 				System.out.println(video2.getUsername());
 				videos.addVideos(video2);
-			}
+				while (rs.next()) {
+					// Videos video = new Videos();
+					// video.setVideoid(rs.getString("videoid"));
+					System.out.println("AAAAAAAAAAAAAAAAA");
+					video2 = getVideoFromDatabase(rs.getString("videoid"));
+					System.out.println(video2.getUsername());
+					videos.addVideos(video2);
+				}
+			} else {
+
+				System.out.println("No hay un video con ese nombre");
+				throw new ServerErrorException(
+						"No hay un video con ese nombre",
+						Response.Status.INTERNAL_SERVER_ERROR);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -997,9 +1016,9 @@ public class VideoshareResource {
 						Response.Status.INTERNAL_SERVER_ERROR);
 			}
 		}
-		
+
 		return videos;
-		
+
 	}
 
 	// método para buscar y obtener libro a partir de la categoria:
@@ -1017,17 +1036,20 @@ public class VideoshareResource {
 	@POST
 	@Path("/{videoid}/puntuacion")
 	@Consumes(Mediatype.VIDEOSHARE_API_PUNTUACION)
+	// @Produces(Mediatype.VIDEOSHARE_API_VIDEOS)
 	public Videos insterPuntuacion(@PathParam("videoid") String videoid,
 			Puntuaciones Puntos) throws SQLException {
 
 		Videos videop = new Videos();
 		String username = Puntos.getUsername();
 		Puntuaciones puntuacion = Puntos;
-		/*
-		 * if (validateUserPunt(videoid, username) == 0) { throw new
-		 * ServerErrorException( "You have already qualified this video!",
-		 * Response.Status.SERVICE_UNAVAILABLE); }
-		 */
+
+		if (validateUserPunt(videoid, username) == 0) {
+			throw new ServerErrorException(
+					"You have already qualified this video!",
+					Response.Status.SERVICE_UNAVAILABLE);
+		}
+
 		// el primer es obtener los puntos que ya tiene el videoid en la tabla
 		// (si se da el caso de que el video ya ha sido puntuado, cualquier otro
 		// caso 0)
@@ -1134,60 +1156,44 @@ public class VideoshareResource {
 	@Produces(Mediatype.VIDEOSHARE_API_VIDEOS_COLLECTION)
 	public VideosCollection getVideosOrderByPuntuacion() {
 		VideosCollection videos = getVideos();
-		/*Videos video = new Videos();
-		// hacemos la conexión a la base de datos
-		Connection conn = null;
-		try {
-			conn = ds.getConnection();
-		} catch (SQLException e) {
-			throw new ServerErrorException(
-					"Could not connect to the databaseeeeeeeeeeeeee",
-					Response.Status.SERVICE_UNAVAILABLE);
-		}
-
-		PreparedStatement stmt = null;
-		try {
-			String sql = buildQueryGetVideosOrderByPuntuacion();
-			stmt = conn.prepareStatement(sql);
-			// obtenemos la respuesta
-			ResultSet rs = stmt.executeQuery();
-
-			while (rs.next()) {
-				try {
-
-					String videoid = rs.getString("videoid");
-
-					// ahora obtenemos la info del video con videoid:
-					video = getVideoFromDatabase(videoid);
-
-				} catch (SQLException e) {
-					throw new ServerErrorException(e.getMessage(),
-							Response.Status.INTERNAL_SERVER_ERROR);
-				} finally {
-					System.out.println("ahora añade el video");
-					videos.addVideos(video);
-				}
-			}
-		} catch (SQLException e) {
-			throw new ServerErrorException(e.getMessage(),
-					Response.Status.INTERNAL_SERVER_ERROR);
-		} finally {
-			try {
-				if (stmt != null)
-					stmt.close();
-				conn.close();
-			} catch (SQLException e) {
-				throw new NotFoundException();
-			}
-		}*/
+		/*
+		 * Videos video = new Videos(); // hacemos la conexión a la base de
+		 * datos Connection conn = null; try { conn = ds.getConnection(); }
+		 * catch (SQLException e) { throw new ServerErrorException(
+		 * "Could not connect to the databaseeeeeeeeeeeeee",
+		 * Response.Status.SERVICE_UNAVAILABLE); }
+		 * 
+		 * PreparedStatement stmt = null; try { String sql =
+		 * buildQueryGetVideosOrderByPuntuacion(); stmt =
+		 * conn.prepareStatement(sql); // obtenemos la respuesta ResultSet rs =
+		 * stmt.executeQuery();
+		 * 
+		 * while (rs.next()) { try {
+		 * 
+		 * String videoid = rs.getString("videoid");
+		 * 
+		 * // ahora obtenemos la info del video con videoid: video =
+		 * getVideoFromDatabase(videoid);
+		 * 
+		 * } catch (SQLException e) { throw new
+		 * ServerErrorException(e.getMessage(),
+		 * Response.Status.INTERNAL_SERVER_ERROR); } finally {
+		 * System.out.println("ahora añade el video"); videos.addVideos(video);
+		 * } } } catch (SQLException e) { throw new
+		 * ServerErrorException(e.getMessage(),
+		 * Response.Status.INTERNAL_SERVER_ERROR); } finally { try { if (stmt !=
+		 * null) stmt.close(); conn.close(); } catch (SQLException e) { throw
+		 * new NotFoundException(); } }
+		 */
 		videos.ordenar();
 		return videos;
 	}
 
 	// (1)GET colección de libros
-	/*private String buildQueryGetVideosOrderByPuntuacion() {
-		return "select * from puntuaciones order by puntuacion";
-	}*/
+	/*
+	 * private String buildQueryGetVideosOrderByPuntuacion() { return
+	 * "select * from puntuaciones order by puntuacion"; }
+	 */
 
 	// * * *
 

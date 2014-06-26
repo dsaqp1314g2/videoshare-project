@@ -326,7 +326,7 @@ function getVideoById(videoid)
 				    $(' <div class="col-sm-12"><video id ="demo" src="'+ videos.url+'" type="video/webm" controls>Tu navegador no implementa el elemento <code>video</code>.<div><button onclick="document.getElementById(\'demo\').play()">Reproducir el Audio</button><button onclick="document.getElementById(\'demo\').pause()">Pausar el Audio</button><button onclick="document.getElementById(\'demo\').volume+=0.1">Aumentar el Volumen</butto<button onclick="document.getElementById(\'demo\').volume-=0.1">Disminuir el Volumen</button></div></video></div>').appendTo($('#videos_result'));
                
 			   
-					$('<div class ="col-sm-12" style="padding: 10px 10px 15px 110px;" ><div class="btn-toolbar" role="toolbar"> <div class="btn-group"><div class=class ="col-sm-8"><div class="btn-group"><button type="button" style="color:white;background-color:#3E3E3E;width:110px; height:4" class="btn dropdown-toggle"data-toggle="dropdown"> Puntuación <span class="caret"></span></button><ul class="dropdown-menu"><li><a onClick="postPuntuacion('+videos.videoid+',1)">1</a></li><li><a onClick="postPuntuacion('+videos.videoid+',2)">2</a></li><li><a onClick="postPuntuacion('+videos.videoid+',3)">3</a></li><li><a onClick="postPuntuacion('+videos.videoid+',4)">4</a></li><li><a onClick="postPuntuacion('+videos.videoid+',5)">5</a></li><li><a onClick="postPuntuacion('+videos.videoid+',6)">6</a></li><li><a onClick="postPuntuacion('+videos.videoid+',7)">7</a></li><li><a onClick="postPuntuacion('+videos.videoid+',8)">8</a></li><li><a onClick="postPuntuacion('+videos.videoid+',9)">9</a></li><li><a onClick="postPuntuacion('+videos.videoid+',10)">10</a></li></ul></div><button type="button" class="btn success" id="button_updatevideo" style="color:white;background-color:#3E3E3E;width:90px; height:4" onclick="loadEdiatVideo()"> Editar </button><button type="button" class="btn success" id="button_postreview" style="color:white;background-color:#CB2626;width:90px; height:4"onClick="deleteVideo('+videos.videoid+')"> Eliminar </button></div></div></div></div>').appendTo($('#videos_result'));
+					$('<div class ="col-sm-12" style="padding: 10px 10px 15px 110px;" ><div class="btn-toolbar" role="toolbar"> <div class="btn-group"><div class=class ="col-sm-8"><div class="btn-group"><button type="button" style="color:white;background-color:#3E3E3E;width:110px; height:4" class="btn dropdown-toggle"data-toggle="dropdown"> Puntuación <span class="caret"></span></button><ul class="dropdown-menu"><li><a onClick="postPuntuacion('+videos.videoid+',1)">1</a></li><li><a onClick="postPuntuacion('+videos.videoid+',2)">2</a></li><li><a onClick="postPuntuacion('+videos.videoid+',3)">3</a></li><li><a onClick="postPuntuacion('+videos.videoid+',4)">4</a></li><li><a onClick="postPuntuacion('+videos.videoid+',5)">5</a></li><li><a onClick="postPuntuacion('+videos.videoid+',6)">6</a></li><li><a onClick="postPuntuacion('+videos.videoid+',7)">7</a></li><li><a onClick="postPuntuacion('+videos.videoid+',8)">8</a></li><li><a onClick="postPuntuacion('+videos.videoid+',9)">9</a></li><li><a onClick="postPuntuacion('+videos.videoid+',10)">10</a></li></ul></div><button type="button" class="btn success" id="button_postreview" style="color:white;background-color:#CB2626;width:90px; height:4"onClick="deleteVideo('+videos.videoid+')"> Eliminar </button></div></div></div></div>').appendTo($('#videos_result'));
 					
 					
 					$('<h5><strong>Username: ' + videos.username + '</strong></h5>').appendTo($('#videos_result'));
@@ -360,8 +360,11 @@ function getVideoById(videoid)
 				    $.each(videos.reviews, function(i, r)
 						{
 							var rev=r;
-						   $('<div class ="col-sm-12" style="padding: 3px 10px 1px 10px;" ><h5> <strong> ' + rev.username + '</strong></h5><h5> '+ rev.reviewtext + '</h5><legend></legend></div>').appendTo($('#videosreviews_result'));
-					   
+							
+						   $('<div> <div class ="col-sm-12" style="padding: 3px 10px 1px 10px;" ><h5> <strong> ' + rev.username + '</strong></h5><h5> '+ rev.reviewtext + '</h5></div>').appendTo($('#videosreviews_result'));
+						   $('<div class ="col-sm-12"> <button type="button" class="btn success" id="button_deleteReview" style="color:white;background-color:red;width:160px; height:4" onClick="deleteReview('+rev.reviewid+', '+videos.videoid+')">Eliminar comentario </button> </div><legend></legend> </div>').appendTo($('#videosreviews_result'));
+						   
+		                   
 					   });
 				   }
 		}
@@ -569,10 +572,19 @@ function Logout()
 
 function deleteVideo(videoid)
 {
-	var url = API_BASE_URL+"/"+videoid; 
+	
+	if(getCookie('username')=="") //no se ha hecho loggin:
+	{
+		$('<div class="alert alert-danger"> <strong>¡Error!</strong> Antes debes iniciar sesión </div>').appendTo($("#videos_result"));
+	}
+	else
+	{
+			
+	var username_to_delete = getCookie('username');
+	var url = API_BASE_URL+"/"+videoid + "/" + username_to_delete; 
 	$("#videos_result").text(' ');
     
-	var username_to_delete = getCookie('username');
+	
 	var data = JSON.stringify(username_to_delete);
 		//mandamos a la API la user+password y comprobamos que sea correcto
 		$.ajax({
@@ -582,7 +594,7 @@ function deleteVideo(videoid)
 			dataType : 'json',
 			data : data,
 			cache : false,
-			contentType : "application/vnd.videoshare.api.user+json; charset=UTF-8 ",
+			contentType : false,
 			processData : false
            
            }).done(function(data, status, jqxhr) {
@@ -590,7 +602,42 @@ function deleteVideo(videoid)
             }).fail(function() {
                 window.location = "Videoshare.html";   
             });
-
+	}
+}
+function deleteReview(reviewid, videoid)
+{
+	if(getCookie('username')=="") //no se ha hecho loggin:
+	{
+		$('<div class="alert alert-danger"> <strong>¡Error!</strong> Antes debes iniciar sesión </div>').appendTo($("#videos_result"));
+	}
+	else
+	{
+		
+	var username_to_delete = getCookie('username');
+	var url = API_BASE_URL+"/"+videoid + "/reviews/" + reviewid + "/"+ username_to_delete; 
+	$("#videos_result").text(' ');
+    
+	
+	//var data = JSON.stringify(username_to_delete);
+		//mandamos a la API la user+password y comprobamos que sea correcto
+		$.ajax({
+			url : url,
+			type : 'DELETE',
+			crossDomain : true,
+			dataType : 'json',
+			data : false,
+			cache : false,
+			contentType : false,
+			processData : false
+           
+           }).done(function(data, status, jqxhr) {
+        	   $("#videosreviews_result").text(' ');
+			   getVideoById(videoid);
+            }).fail(function() {
+            	$("#videosreviews_result").text(' ');
+				   getVideoById(videoid);  
+            });
+	}
 }
 
 function Signup(newSignup) {
@@ -672,7 +719,7 @@ var url = API_BASE_URL +"/"+videoid+ "/puntuacion"; //falta añadir la URL para 
                    $('<div class="alert alert-success"> <strong>Puntuación añadida</strong>.</div>').appendTo($("#videos_result"));
 				   getVideoById(videoid);
             }).fail(function() {
-                    $('<div class="alert alert-danger"> <strong>Oh!</strong> Error </div>').appendTo($("#videos_result"));
+                    $('<div class="alert alert-danger"> <strong>Oh!</strong> Ya has puntuado este video !!! </div>').appendTo($("#videos_result"));
             });
 }
 
@@ -762,14 +809,8 @@ function searchIt(titulo)
     });
 }
 
-//editar video
-function loadEdiatVideo()
-{
-	$("#videos_result").text(' ');
-	$("#videosreviews_result").text(' ');
-	document.getElementById("newReviewForm").style.visibility="hidden";
-    document.getElementById("formeditar").style.visibility="visible";   
-}
+
+
 
 //subir video:
 
