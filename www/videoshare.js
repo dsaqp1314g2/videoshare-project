@@ -623,12 +623,7 @@ function deleteReview(reviewid, videoid)
 		$.ajax({
 			url : url,
 			type : 'DELETE',
-			crossDomain : true,
-			dataType : 'json',
-			data : false,
-			cache : false,
-			contentType : false,
-			processData : false
+			crossDomain : true
            
            }).done(function(data, status, jqxhr) {
         	   $("#videosreviews_result").text(' ');
